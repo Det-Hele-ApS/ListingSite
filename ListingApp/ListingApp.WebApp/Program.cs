@@ -4,13 +4,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Threading.Tasks;
 
 namespace ListingApp.WebApp
 {
 	public class Program
     {
-        public static async Task Main(string[] args)
+        public static void Main(string[] args)
         {
             var host = BuildWebHost(args);
 
@@ -20,7 +19,7 @@ namespace ListingApp.WebApp
 
 				try
 				{
-					await DbInitializer.Initialize(services);
+					DbInitializer.Initialize(services).Wait();
 				}
 				catch (Exception ex)
 				{
@@ -29,7 +28,7 @@ namespace ListingApp.WebApp
 				}
 			}
 
-			await host.RunAsync();
+			host.Run();
 		}
 
         public static IWebHost BuildWebHost(string[] args) =>
