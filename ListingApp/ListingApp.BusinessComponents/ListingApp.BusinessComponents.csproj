@@ -4,4 +4,9 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ListingApp.BusinessContracts\ListingApp.BusinessContracts.csproj" />
+    <ProjectReference Include="..\ListingApp.DataAccess\ListingApp.DataAccess.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,23 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using AutoMapper;
+using ListingApp.BusinessComponents.Services;
+using ListingApp.BusinessContracts.Services;
+using ListingApp.DataAccess;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace ListingApp.WebApp
 {
-    public class Startup
+	public class Startup
     {
-        public Startup(IConfiguration configuration)
+		private const string ConnectionStringName = "DefaultConnection";
+
+		private readonly string connectionString;
+
+		public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
-        }
+            this.Configuration = configuration;
+			this.connectionString = this.Configuration.GetConnectionString(ConnectionStringName);
+
+			Log.Logger = new LoggerConfiguration()
+				.CreateLogger();
+		}
 
         public IConfiguration Configuration { get; }
 
@@ -31,13 +41,23 @@ namespace ListingApp.WebApp
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-
+			services.AddDbContext<AppDbContext>(options => options.UseSqlServer(this.connectionString));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+			services.AddAutoMapper();
+
+			services.AddScoped<IEscortTypeService, EscortTypeService>();
+			services.AddScoped<IServiceService, ServiceService>();
+			services.AddScoped<IEscortService, EscortService>();
+			services.AddScoped<IRegionService, RegionService>();
+			services.AddScoped<ICityService, CityService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+			loggerFactory.AddSerilog();
+			loggerFactory.AddFile("logs/log_{Date}.txt");
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -54,9 +74,17 @@ namespace ListingApp.WebApp
 
             app.UseMvc(routes =>
             {
+				routes.MapRoute(
+					name: "escorts",
+					template: "eskorte/{first?}/{second?}/{third?}",
+					defaults: new { controller = "Listing", action = "Index", first = "", second = "", third = "" });
+				routes.MapRoute(
+					name: "profile",
+					template: "profile/{id:guid}",
+					defaults: new { controller = "Profile", action = "Index" });
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    template: "{controller=Home}/{action=Index}/");
             });
         }
     }

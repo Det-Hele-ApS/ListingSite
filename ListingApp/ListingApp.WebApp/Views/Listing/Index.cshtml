@@ -1,0 +1,43 @@
+﻿@{
+	ViewData["Title"] = "Eskorte";
+}
+
+<h2>Escorts:</h2>
+
+Available Types: <br />
+<ul>
+	@foreach (var type in ViewBag.Types)
+	{
+		<li>
+			@type.Name - @type.Slug
+		</li>
+	}
+</ul>
+
+<br /><br />
+
+Available Services: <br />
+<ul>
+	@foreach (var service in ViewBag.Services)
+	{
+		<li>
+			@service.Name - @service.Slug
+		</li>
+	}
+</ul>
+
+<br /><br />
+
+Available Cities: <br />
+<ul>
+	@foreach (var city in ViewBag.Cities)
+	{
+		<li>
+			@city.Name - @city.Slug
+		</li>
+	}
+</ul>
+
+Selected TYPE: @ViewBag.Type <br />
+Selected SERVICE: @ViewBag.Service <br />
+Selected CITY: @ViewBag.City <br />
