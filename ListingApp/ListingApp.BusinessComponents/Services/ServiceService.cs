@@ -26,6 +26,7 @@ namespace ListingApp.BusinessComponents.Services
 		{
 			return await this.dbContext.Services
 				.Select(s => this.mapper.Map<Service, ServiceModel>(s))
+				.OrderBy(s => s.Name)
 				.ToListAsync();
 		}
 

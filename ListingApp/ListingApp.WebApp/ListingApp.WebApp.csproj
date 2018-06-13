@@ -22,4 +22,10 @@
     <ProjectReference Include="..\ListingApp.DataAccess\ListingApp.DataAccess.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\css\theme\" />
+    <Folder Include="wwwroot\js\theme\" />
+    <Folder Include="wwwroot\lib\" />
+  </ItemGroup>
+
 </Project>
