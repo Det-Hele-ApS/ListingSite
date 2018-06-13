@@ -21,7 +21,7 @@ namespace ListingApp.DataAccess.Entities
 
 		public string Email { get; set; }
 
-		// TODO: ESCORT FEATURE
+		public ICollection<EscortFeature> EscortFeatures { get; set; }
 
 		public ICollection<EscortService> EscortServices { get; set; }
 

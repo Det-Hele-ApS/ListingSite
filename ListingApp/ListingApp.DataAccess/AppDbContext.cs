@@ -14,14 +14,23 @@ namespace ListingApp.DataAccess
 
 		public DbSet<Escort> Escorts { get; set; }
 
+		public DbSet<EscortFeature> EscortFeatures { get; set; }
+
 		public DbSet<Service> Services { get; set; }
+
+		public DbSet<Image> Images { get; set; }
 
 		public DbSet<Region> Regions { get; set; }
 
 		public DbSet<City> Cities { get; set; }
 
+		public DbSet<Calendar> Calendar { get; set; }
+
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
+			modelBuilder.Entity<EscortFeature>()
+				.HasKey(ef => new { ef.FeatureName, ef.EscortId });
+
 			modelBuilder.Entity<EscortService>()
 				.HasKey(es => new { es.EscortId, es.ServiceId });
 
