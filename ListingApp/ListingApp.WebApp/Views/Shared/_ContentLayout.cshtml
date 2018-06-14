@@ -1,0 +1,294 @@
+﻿@inject IEscortTypeService escortTypeService
+@inject IServiceService serviceService
+@inject ICityService cityService
+
+@{
+	var escortTypes = await escortTypeService.GetAll();
+	var services = await serviceService.GetAll();
+	var cities = await cityService.GetAll();
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+	<meta name="viewport" content="width=device-width" />
+	<title>@ViewData["Title"] - Norway Eskorte</title>
+
+	<link type="text/css" rel="stylesheet" href="~/css/theme/bootstrap.min.css">
+	<link type="text/css" rel="stylesheet" href="~/css/theme/magnific-popup.css">
+	<link type="text/css" rel="stylesheet" href="~/css/theme/jquery.selectBox.css">
+	<link type="text/css" rel="stylesheet" href="~/css/theme/dropzone.css">
+	<link type="text/css" rel="stylesheet" href="~/css/theme/rangeslider.css">
+	<link type="text/css" rel="stylesheet" href="~/css/theme/animate.min.css">
+	<link type="text/css" rel="stylesheet" href="~/css/theme/leaflet.css">
+	<link type="text/css" rel="stylesheet" href="~/css/theme/map.css">
+	<link type="text/css" rel="stylesheet" href="~/css/theme/jquery.mCustomScrollbar.css">
+	<link type="text/css" rel="stylesheet" href="~/fonts/font-awesome/css/font-awesome.min.css">
+	<link type="text/css" rel="stylesheet" href="~/fonts/flaticon/font/flaticon.css">
+	<link rel="shortcut icon" href="~/favicon.ico" type="image/x-icon">
+	<!-- Google fonts -->
+	<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,800%7CPoppins:400,500,700,800,900%7CRoboto:100,300,400,400i,500,700">
+
+	<link type="text/css" rel="stylesheet" href="~/css/theme/style.css">
+	<link type="text/css" rel="stylesheet" href="~/css/theme/default-skin.css">
+</head>
+<body id="top">
+
+	<div class="page_loader"></div>
+	<!-- Top header start -->
+	<header class="top-header top-header-bg d-none d-xl-block d-lg-block d-md-block" id="top-header-2">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-6 col-md-6 col-sm-6">
+					<div class="list-inline">
+						<a href="tel:1-XXX-XXX-XXX8"><i class="fa fa-phone"></i>1-XXX-XXX-XXX8</a>
+						<a href="tel:info@themevessel.com"><i class="fa fa-envelope"></i>info@themevessel.com</a>
+					</div>
+				</div>
+				<div class="col-lg-6 col-md-6 col-sm-6">
+					<ul class="top-social-media pull-right">
+						<li>
+							<a href="#" class="facebook"><i class="fa fa-facebook"></i></a>
+						</li>
+						<li>
+							<a href="#" class="twitter"><i class="fa fa-twitter"></i></a>
+						</li>
+						<li>
+							<a href="#" class="google"><i class="fa fa-google-plus"></i></a>
+						</li>
+						<li>
+							<a href="#" class="linkedin"><i class="fa fa-linkedin"></i> </a>
+						</li>
+						<li>
+							<a href="#" class="rss"><i class="fa fa-instagram"></i></a>
+						</li>
+
+						@*<li>
+								<a href="#">/</a>
+							</li>
+							<li>
+								<a href="login.html" class="sign-in"><i class="fa fa-sign-in"></i> Login </a>
+							</li>
+							<li>
+								<a href="login.html" class="sign-in"><i class="fa fa-user"></i> Register</a>
+							</li>*@
+					</ul>
+				</div>
+			</div>
+		</div>
+	</header>
+	<!-- Top header end -->
+	<!-- main header start -->
+	<header class="main-header do-sticky" id="main-header-2">
+		<div class="container">
+			<div class="row">
+				<div class="col-12">
+					<nav class="navbar navbar-expand-lg navbar-light rounded">
+						<a class="navbar-brand logo" asp-controller="Home" asp-action="Index">
+							<img src="~/images/logos/black-logo.png" alt="logo">
+						</a>
+						<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+							<span class="fa fa-bars"></span>
+						</button>
+						<div class="collapse navbar-collapse" id="navbar">
+							<ul class="navbar-nav ml-auto">
+								<li class="nav-item">
+									<a class="nav-link" href="/eskorte">
+										Explore Escorts
+									</a>
+								</li>
+								<li class="nav-item dropdown">
+									<a class="nav-link dropdown-toggle" id="navbar-escort-types" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+										Escort Types
+									</a>
+									<ul class="dropdown-menu" aria-labelledby="navbar-escort-types">
+										@foreach (var escortType in escortTypes)
+										{
+											<li>
+												<a class="dropdown-item" href="/eskorte/@escortType.Slug">
+													@escortType.Name
+												</a>
+											</li>
+										}
+									</ul>
+								</li>
+								<li class="nav-item dropdown">
+									<a class="nav-link dropdown-toggle" id="navbar-services" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+										Services
+									</a>
+									<ul class="dropdown-menu" aria-labelledby="navbar-services">
+										@foreach (var service in services)
+										{
+											<li>
+												<a class="dropdown-item" href="/eskorte/@service.Slug">
+													@service.Name
+												</a>
+											</li>
+										}
+									</ul>
+								</li>
+								<li class="nav-item dropdown">
+									<a class="nav-link dropdown-toggle" id="navbar-cities" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+										Cities
+									</a>
+									<ul class="dropdown-menu" aria-labelledby="navbar-cities">
+										@foreach (var city in cities)
+										{
+											<li>
+												<a class="dropdown-item" href="/eskorte/@city.Slug">
+													@city.Name
+												</a>
+											</li>
+										}
+									</ul>
+								</li>
+							</ul>
+							<form class="form-inline my-2 my-lg-0">
+								<a href="#full-page-search" class=" my-2 my-sm-0">
+									<i class="fa fa-search"></i>
+								</a>
+							</form>
+						</div>
+					</nav>
+				</div>
+			</div>
+		</div>
+	</header>
+	<!-- main header end -->
+
+	@RenderBody()
+
+	<footer class="footer">
+		<div class="container footer-inner">
+			<div class="row">
+				<div class="col-xl-3 col-lg-3 col-md-6 col-sm-6">
+					<div class="footer-item">
+						<h4>Contact Us</h4>
+						<ul class="contact-info">
+							<li>
+								Address: 20/F Green Road, Dhanmondi, Dhaka
+							</li>
+							<li>
+								Email: <a href="mailto:info@themevessel.com">info@themevessel.com</a>
+							</li>
+							<li>
+								Phone: <a href="tel:+0477-85x6-552">+XXXX XXXX XXX</a>
+							</li>
+						</ul>
+						<ul class="social-list clearfix">
+							<li><a href="#" class="facebook"><i class="fa fa-facebook"></i></a></li>
+							<li><a href="#" class="twitter"><i class="fa fa-twitter"></i></a></li>
+							<li><a href="#" class="google"><i class="fa fa-google-plus"></i></a></li>
+							<li><a href="#" class="rss"><i class="fa fa-rss"></i></a></li>
+							<li><a href="#" class="linkedin"><i class="fa fa-linkedin"></i></a></li>
+						</ul>
+					</div>
+				</div>
+				<div class="col-xl-2 col-lg-2 col-md-6 col-sm-6">
+					<div class="footer-item">
+						<h4>
+							Useful Links
+						</h4>
+						<ul class="links">
+							<li>
+								<a href="#"><i class="fa fa-angle-right"></i>About us</a>
+							</li>
+							<li>
+								<a href="#"><i class="fa fa-angle-right"></i>Service</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<div class="col-xl-4 col-lg-4 col-md-6 col-sm-6">
+
+				</div>
+				<div class="col-xl-3 col-lg-3 col-md-6 col-sm-6">
+					<div class="footer-item clearfix">
+						<h4>Subscribe</h4>
+						<div class="Subscribe-box">
+							<p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit.</p>
+							<form action="#" method="GET">
+								<p>
+									<input type="text" class="form-contact" name="email" placeholder="Enter Address">
+								</p>
+								<p>
+									<button type="submit" name="submitNewsletter" class="btn btn-block btn-color">
+										Subscribe
+									</button>
+								</p>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xl-12">
+					<p class="copy">&copy;  2018 <a href="http://themevessel.com/" target="_blank">Theme Vessel</a>. Trademarks and brands are the property of their respective owners.</p>
+				</div>
+			</div>
+		</div>
+	</footer>
+
+	<!-- Off-canvas sidebar -->
+	<div class="off-canvas-sidebar">
+		<div class="off-canvas-sidebar-wrapper">
+			<div class="off-canvas-header">
+				<a class="close-offcanvas" href="#"><span class="fa fa-times"></span></a>
+			</div>
+			<div class="off-canvas-content">
+				<aside class="canvas-widget">
+					<div class="logo text-center">
+						<img src="~/images/logos/logo.png" alt="logo">
+					</div>
+				</aside>
+				<aside class="canvas-widget">
+					<ul class="menu">
+						<li class="menu-item menu-item-has-children"><a href="index.html">Home</a></li>
+						<li class="menu-item"><a href="properties-grid-leftside.html">Properties List</a></li>
+						<li class="menu-item"><a href="properties-details.html">Property Detail</a></li>
+						<li class="menu-item"><a href="blog-single-sidebar-right.html">Blog</a></li>
+						<li class="menu-item"><a href="about-1.html">About  US</a></li>
+						<li class="menu-item"><a href="contact-1.html">Contact US</a></li>
+					</ul>
+				</aside>
+				<aside class="canvas-widget">
+					<ul class="social-icons">
+						<li><a href="#"><i class="fa fa-facebook"></i></a></li>
+						<li><a href="#"><i class="fa fa-twitter"></i></a></li>
+						<li><a href="#"><i class="fa fa-google-plus"></i></a></li>
+						<li><a href="#"><i class="fa fa-linkedin"></i></a></li>
+						<li><a href="#"><i class="fa fa-vk"></i></a></li>
+					</ul>
+				</aside>
+			</div>
+		</div>
+	</div>
+
+	<script src="~/js/theme/jquery-2.2.0.min.js"></script>
+	<script src="~/js/theme/popper.min.js"></script>
+	<script src="~/js/theme/bootstrap.min.js"></script>
+	<script src="~/js/theme/jquery.selectBox.js"></script>
+	<script src="~/js/theme/rangeslider.js"></script>
+	<script src="~/js/theme/jquery.magnific-popup.min.js"></script>
+	<script src="~/js/theme/jquery.filterizr.js"></script>
+	<script src="~/js/theme/wow.min.js"></script>
+	<script src="~/js/theme/backstretch.js"></script>
+	<script src="~/js/theme/jquery.countdown.js"></script>
+	<script src="~/js/theme/jquery.scrollUp.js"></script>
+	<script src="~/js/theme/particles.min.js"></script>
+	<script src="~/js/theme/typed.min.js"></script>
+	<script src="~/js/theme/dropzone.js"></script>
+	<script src="~/js/theme/jquery.mb.YTPlayer.js"></script>
+	<script src="~/js/theme/leaflet.js"></script>
+	<script src="~/js/theme/leaflet-providers.js"></script>
+	<script src="~/js/theme/leaflet.markercluster.js"></script>
+	<script src="~/js/theme/maps.js"></script>
+	<script src="~/js/theme/jquery.mCustomScrollbar.concat.min.js"></script>
+	<script src="~/js/theme/ie-emulation-modes-warning.js"></script>
+
+	<script src="~/js/app.js"></script>
+
+	@RenderSection("Scripts", required: false)
+</body>
+</html>
