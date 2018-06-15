@@ -15,6 +15,10 @@ namespace ListingApp.DataAccess.Entities
 		[Required]
 		public string Name { get; set; }
 
+		public string Description { get; set; }
+
+		public int ExternalId { get; set; }
+
 		public ICollection<EscortService> EscortServices { get; set; }
     }
 }

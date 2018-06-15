@@ -25,8 +25,8 @@ namespace ListingApp.DataAccess
 			{
 				await dbContext.EscortTypes.AddRangeAsync(new[]
 				{
-					new EscortType { Slug = "jenter", Name = "Jenter" },
-					new EscortType { Slug = "transe", Name = "Transe" }
+					new EscortType { Slug = "jenter", Name = "Jenter", ExternalName = "girls", ExternalId = 5 },
+					new EscortType { Slug = "transe", Name = "Transe", ExternalName = "tvts", ExternalId = 7 }
 				});
 
 				await dbContext.SaveChangesAsync();
@@ -35,36 +35,127 @@ namespace ListingApp.DataAccess
 
 		private static async Task SeedCitiesAndRegions(AppDbContext dbContext)
 		{
-			if (!await dbContext.Cities.AnyAsync() && !await dbContext.Regions.AnyAsync())
+			if (!await dbContext.Regions.AnyAsync())
 			{
-				var frognerRegion = new Region
+				var regions = new[]
 				{
-					Name = "Frogner",
-					Slug = "frogner"
+					 new Region
+					 {
+						 Name = "Akershus",
+						 Slug = "akershus",
+						 ExternalId = 2
+					 },
+					 new Region
+					 {
+						 Name = "Aust-Agder",
+						 Slug = "aust-agder",
+						 ExternalId = 9
+					 },
+					 new Region
+					 {
+						 Name = "Buskerud",
+						 Slug = "buskerud",
+						 ExternalId = 6
+					 },
+					 new Region
+					 {
+						 Name = "Finnmark",
+						 Slug = "finnmark",
+						 ExternalId = 19
+					 },
+					 new Region
+					 {
+						 Name = "Hedmark",
+						 Slug = "hedmark",
+						 ExternalId = 4
+					 },
+					 new Region
+					 {
+						 Name = "Hordaland",
+						 Slug = "hordaland",
+						 ExternalId = 12
+					 },
+					 new Region
+					 {
+						 Name = "Møre og Romsdal",
+						 Slug = "moere-og-romsdal",
+						 ExternalId = 14
+					 },
+					 new Region
+					 {
+						 Name = "Nordland",
+						 Slug = "nordland",
+						 ExternalId = 17
+					 },
+					 new Region
+					 {
+						 Name = "Oppland",
+						 Slug = "oppland",
+						 ExternalId = 5
+					 },
+					 new Region
+					 {
+						 Name = "Oslo",
+						 Slug = "oslo",
+						 ExternalId = 3
+					 },
+					 new Region
+					 {
+						 Name = "Rogaland",
+						 Slug = "rogaland",
+						 ExternalId = 11
+					 },
+					 new Region
+					 {
+						 Name = "Sogn og Fjordane",
+						 Slug = "sogn-og-fjordane",
+						 ExternalId = 13
+					 },
+					 new Region
+					 {
+						 Name = "Svalbard",
+						 Slug = "svalbard",
+						 ExternalId = 361
+					 },
+					 new Region
+					 {
+						 Name = "Telemark",
+						 Slug = "telemark",
+						 ExternalId = 8
+					 },
+					 new Region
+					 {
+						 Name = "Troms",
+						 Slug = "troms",
+						 ExternalId = 18
+					 },
+					 new Region
+					 {
+						 Name = "Trøndelag",
+						 Slug = "troendelag",
+						 ExternalId = 15
+					 },
+					 new Region
+					 {
+						 Name = "Vest-Agder",
+						 Slug = "vest-agder",
+						 ExternalId = 10
+					 },
+					 new Region
+					 {
+						 Name = "Vestfold",
+						 Slug = "vestfold",
+						 ExternalId = 7
+					 },
+					 new Region
+					 {
+						 Name = "Østfold",
+						 Slug = "oestfold",
+						 ExternalId = 1
+					 }
 				};
 
-				var midhordlandRegion = new Region
-				{
-					Name = "Midhordland",
-					Slug = "midhordland"
-				};
-
-				await dbContext.Cities.AddRangeAsync(new[]
-				{
-					new City
-					{
-						Slug = "oslo",
-						Name = "Oslo",
-						Region = frognerRegion
-					},
-					new City
-					{
-						Slug = "bergen",
-						Name = "Bergen",
-						Region = midhordlandRegion
-					}
-				});
-
+				await dbContext.Regions.AddRangeAsync(regions);
 				await dbContext.SaveChangesAsync();
 			}
 		}

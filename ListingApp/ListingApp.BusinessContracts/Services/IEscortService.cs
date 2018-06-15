@@ -1,4 +1,5 @@
-﻿using ListingApp.BusinessEntities.Models.Listing;
+﻿using ListingApp.BusinessEntities.Models.Escort;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -21,5 +22,7 @@ namespace ListingApp.BusinessContracts.Services
 		Task<IList<ListingEscortModel>> GetByEscortTypeAndCity(string escortType, string city);
 
 		Task<IList<ListingEscortModel>> GetByAllFilters(string escortType, string serviceName, string city);
+
+		// Task<Guid> Add(NewEscortModel escort); 
 	}
 }

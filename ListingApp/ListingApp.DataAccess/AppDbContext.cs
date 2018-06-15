@@ -7,7 +7,6 @@ namespace ListingApp.DataAccess
     {
 		public AppDbContext(DbContextOptions options): base(options)
 		{
-
 		}
 
 		public DbSet<EscortType> EscortTypes { get; set; }

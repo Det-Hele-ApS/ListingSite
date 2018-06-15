@@ -13,5 +13,10 @@ namespace ListingApp.DataAccess.Entities
 
 		[Required]
 		public string Name { get; set; }
+
+		[Required]
+		public string ExternalName { get; set; }
+
+		public int ExternalId { get; set; }
     }
 }

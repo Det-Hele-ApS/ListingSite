@@ -1,7 +1,10 @@
 ﻿using ListingApp.BusinessContracts;
 using ListingApp.BusinessContracts.Services;
+using ListingApp.BusinessEntities.Models.Escort;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ListingApp.WebApp.Controllers
@@ -38,11 +41,30 @@ namespace ListingApp.WebApp.Controllers
 			this.ViewBag.Regions = await this.regionService.GetAll();
 			this.ViewBag.Cities = await this.cityService.GetAll();
 
-			this.ViewBag.Type = await this.GetRouteParam(first, second, third, RouteParams.Type);
-			this.ViewBag.Service = await this.GetRouteParam(first, second, third, RouteParams.Service);
+			var type = await this.GetRouteParam(first, second, third, RouteParams.Type);
+			var service = await this.GetRouteParam(first, second, third, RouteParams.Service);
 			this.ViewBag.City = await this.GetRouteParam(first, second, third, RouteParams.City);
 
-			return this.View();
+			IList<ListingEscortModel> model;
+
+			if(string.IsNullOrEmpty(type) && string.IsNullOrEmpty(service))
+			{
+				model = await this.escortService.GetAll();
+			}
+			else if(string.IsNullOrEmpty(type))
+			{
+				model = await this.escortService.GetByServiceName(service);
+			}
+			else if(string.IsNullOrEmpty(service))
+			{
+				model = await this.escortService.GetByEscortType(type);
+			}
+			else
+			{
+				model = await this.escortService.GetByEscortTypeAndService(type, service);
+			}
+
+			return this.View(model.Take(20));
 		}
 
 		private async Task<string> GetRouteParam(string first, string second, string third, RouteParams paramType)

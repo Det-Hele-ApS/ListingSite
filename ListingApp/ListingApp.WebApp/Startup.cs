@@ -37,12 +37,12 @@ namespace ListingApp.WebApp
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
+                // options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
 			services.AddDbContext<AppDbContext>(options => options.UseSqlServer(this.connectionString));
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+			services.AddMvc(); //.SetCompatibilityVersion(CompatibilityVersion.Version_2_0);
 			services.AddAutoMapper();
 
 			services.AddScoped<IEscortTypeService, EscortTypeService>();
@@ -65,10 +65,10 @@ namespace ListingApp.WebApp
             else
             {
                 app.UseExceptionHandler("/Home/Error");
-                app.UseHsts();
+                // app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            // app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
 

@@ -1,4 +1,6 @@
-﻿@{
+﻿@model IList<ListingEscortModel>
+
+@{
 	Layout = "_ContentLayout";
 	ViewData["Title"] = "Eskorte";
 }
@@ -120,10 +122,10 @@
 				</div>
 
 				<div class="subtitle">
-					3 Result Found
+					@Model.Count Result Found
 				</div>
 				<div class="row">
-					@for (var i = 0; i != 3; i++)
+					@foreach(var escort in Model)
 					{
 						<div class="col-lg-6 col-md-6 col-sm-12">
 							<div class="property-box">
@@ -132,7 +134,7 @@
 										<div class="tag button alt featured">Featured</div>
 										<div class="price-ratings-box">
 											<p class="price">
-												$178
+												$xxx
 											</p>
 											<div class="ratings">
 												<i class="fa fa-star"></i>
@@ -142,7 +144,7 @@
 												<i class="fa fa-star-o"></i>
 											</div>
 										</div>
-										<img src="http://placehold.it/350x233" alt="property-2" class="img-fluid">
+										<img src="http://placehold.it/350x233" alt="@escort.Name" class="img-fluid">
 									</a>
 									<div class="property-overlay">
 										<a asp-controller="Profile" asp-action="Index" class="overlay-link">
@@ -159,26 +161,30 @@
 								</div>
 								<div class="detail">
 									<h1 class="title">
-										<a asp-controller="Profile" asp-action="Index">Escort Name @i</a>
+										<a asp-controller="Profile" asp-action="Index">@escort.Name</a>
 									</h1>
 									<div class="location">
 										<a asp-controller="Profile" asp-action="Index">
-											<i class="fa fa-map-marker"></i>Some Info @i
+											<i class="fa fa-map-marker"></i>@escort.EscortType
 										</a>
 									</div>
 									<ul class="facilities-list clearfix">
-										<li>
-											<i class="flaticon-bed"></i> Feature 1
-										</li>
-										<li>
-											<i class="flaticon-bath"></i> Feature 2
-										</li>
-										<li>
-											<i class="flaticon-square-layouting-with-black-square-in-east-area"></i> Feature 3
-										</li>
-										<li>
-											<i class="flaticon-car-repair"></i> Feature 4
-										</li>
+										@{ 
+											var i = 0;
+										}
+										@foreach (var service in escort.Services)
+										{
+											<li>
+												<i class="flaticon-check-mark"></i> @Html.Raw(service.Name)
+											</li>
+
+											@if(++i == 4)
+											{
+												break;
+											}
+										}
+
+
 									</ul>
 								</div>
 								<div class="footer">
