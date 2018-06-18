@@ -38,14 +38,13 @@ namespace ListingApp.WebApp
         {
             services.Configure<CookiePolicyOptions>(options =>
             {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                // options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
 			services.AddDbContext<AppDbContext>(options => options.UseSqlServer(this.connectionString));
-			services.AddMvc(); //.SetCompatibilityVersion(CompatibilityVersion.Version_2_0);
+			services.AddMvc(); 
 			services.AddAutoMapper();
+			services.AddDirectoryBrowser();
 
 			services.AddScoped<IEscortTypeService, EscortTypeService>();
 			services.AddScoped<IServiceService, ServiceService>();
@@ -70,6 +69,12 @@ namespace ListingApp.WebApp
             }
 
             app.UseStaticFiles();
+			app.UseStaticFiles(new StaticFileOptions
+			{
+				FileProvider = new PhysicalFileProvider(
+					Path.Combine(Directory.GetCurrentDirectory(), "logs")),
+				RequestPath = "/logs"
+			});
 			app.UseDirectoryBrowser(new DirectoryBrowserOptions
 			{
 				FileProvider = new PhysicalFileProvider(
