@@ -64,7 +64,7 @@ namespace ListingApp.WebApp.Controllers
 				model = await this.escortService.GetByEscortTypeAndService(type, service);
 			}
 
-			return this.View(model.Take(20));
+			return this.View(model.Take(20).ToList());
 		}
 
 		private async Task<string> GetRouteParam(string first, string second, string third, RouteParams paramType)

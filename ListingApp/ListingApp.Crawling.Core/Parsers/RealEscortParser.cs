@@ -157,7 +157,6 @@ namespace ListingApp.Crawling.Core.Parsers
 				page = page,
 				reload = false
 			}).ToString();
-			//return $"{{\"categoryId\":{categoryId},\"regionId\":{regionId},\"page\":{page},\"reload\":{false}}}";
 		}
 
 		private async Task<HttpResponseMessage> SendRequest(string url, HttpMethod method, string referer, string bodyContent = null, bool solve = true)
