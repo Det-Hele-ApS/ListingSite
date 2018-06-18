@@ -9,8 +9,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using System.IO;
 
 namespace ListingApp.WebApp
 {
@@ -65,11 +67,16 @@ namespace ListingApp.WebApp
             else
             {
                 app.UseExceptionHandler("/Home/Error");
-                // app.UseHsts();
             }
 
-            // app.UseHttpsRedirection();
             app.UseStaticFiles();
+			app.UseDirectoryBrowser(new DirectoryBrowserOptions
+			{
+				FileProvider = new PhysicalFileProvider(
+					Path.Combine(Directory.GetCurrentDirectory(), "logs")),
+				RequestPath = "/logs"
+			});
+
             app.UseCookiePolicy();
 
             app.UseMvc(routes =>
