@@ -1,8 +1,271 @@
-﻿@model Guid
+﻿@model EscortModel
 @{
 	Layout = "_ContentLayout";
 	ViewData["Title"] = "Eskorte Profile";
 }
 
-<h2>Profile: @Model</h2>
+<!-- Sub banner start -->
+<div class="sub-banner overview-bgi">
+	<div class="container">
+		<div class="breadcrumb-area">
+			<h1>Profile Details</h1>
+			<ul class="breadcrumbs">
+				<li><a asp-controller="Listing" asp-action="Index">Eskorte</a></li>
+				<li class="active">@Model.Name</li>
+			</ul>
+		</div>
+	</div>
+</div>
+<!-- Sub banner end -->
 
+<div class="properties-details-page content-area-15">
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-8 col-md-12 col-xs-12 slider">
+
+				<div id="propertiesDetailsSlider" class="carousel properties-details-sliders slide mb-60">
+					<div class="heading-properties">
+						<div class="row">
+							<div class="col-md-12">
+								<div class="pull-left">
+									<h3>@Model.Name</h3>
+								</div>
+								<div class="p-r">
+									<h3>$xxx</h3>
+									<p>
+										<i class="fa fa-star"></i>
+										<i class="fa fa-star"></i>
+										<i class="fa fa-star"></i>
+										<i class="fa fa-star"></i>
+										<i class="fa fa-star"></i>
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- main slider carousel items -->
+					<div class="carousel-inner">
+						@foreach (var image in Model.Images)
+						{
+							<div class="item carousel-item" data-slide-number="0">
+								<img src="http://placehold.it/730x486" class="img-fluid" alt="TODO">
+							</div>
+						}
+						<a class="carousel-control left" href="#propertiesDetailsSlider" data-slide="prev"><i class="fa fa-angle-left"></i></a>
+						<a class="carousel-control right" href="#propertiesDetailsSlider" data-slide="next"><i class="fa fa-angle-right"></i></a>
+					</div>
+					<!-- main slider carousel nav controls -->
+					<ul class="carousel-indicators smail-properties list-inline nav nav-justified">
+						@foreach (var image in Model.Images)
+						{
+							<li class="list-inline-item active">
+								<a id="carousel-selector-0" class="selected" data-slide-to="0" data-target="#propertiesDetailsSlider">
+									<img src="http://placehold.it/146x97" class="img-fluid" alt="TODO">
+								</a>
+							</li>
+						}
+					</ul>
+				</div>
+
+
+				<!-- Tabbing box start -->
+				<div class="tabbing tabbing-box mb-60">
+					<ul class="nav nav-tabs" id="carTab" role="tablist">
+						<li class="nav-item">
+							<a class="nav-link active show" id="one-tab" data-toggle="tab" href="#one" role="tab" aria-controls="one" aria-selected="false">Description</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" id="three-tab" data-toggle="tab" href="#three" role="tab" aria-controls="three" aria-selected="true">Details</a>
+						</li>
+					</ul>
+					<div class="tab-content" id="carTabContent">
+						<div class="tab-pane fade active show" id="one" role="tabpanel" aria-labelledby="one-tab">
+							<h3 class="heading">Description</h3>
+							@Html.Raw(Model.Description)
+						</div>
+
+						<div class="tab-pane fade " id="three" role="tabpanel" aria-labelledby="three-tab">
+							<div class="property-details">
+								<h3 class="heading">Property Details</h3>
+								<div class="row">
+									<div class="col-md-4 col-sm-6">
+										<ul>
+											@{
+												var kvp1 = 0;
+											}
+
+											@foreach (var kvp in Model.Features)
+											{
+												@if (kvp1++ % 3 == 0)
+												{
+													<li>
+														<strong>@Html.Raw(kvp.Key)</strong>@Html.Raw(kvp.Value)
+													</li>
+												}
+											}
+										</ul>
+									</div>
+									<div class="col-md-4 col-sm-6">
+										<ul>
+											@{
+												var kvp2 = 0;
+											}
+
+											@foreach (var kvp in Model.Features)
+											{
+												@if (kvp2++ % 3 == 1)
+												{
+													<li>
+														<strong>@Html.Raw(kvp.Key)</strong>@Html.Raw(kvp.Value)
+													</li>
+												}
+											}
+										</ul>
+									</div>
+									<div class="col-md-4 col-sm-6">
+										<ul>
+											@{
+												var kvp3 = 0;
+											}
+
+											@foreach (var kvp in Model.Features)
+											{
+												@if (kvp3++ % 3 == 2)
+												{
+													<li>
+														<strong>@Html.Raw(kvp.Key)</strong>@Html.Raw(kvp.Value)
+													</li>
+												}
+											}
+										</ul>
+									</div>
+								</div>
+							</div>
+						</div>
+
+					</div>
+				</div>
+
+				<!-- Features opions start -->
+				<div class="features-opions mb-60">
+					<h3 class="heading">Features</h3>
+					<div class="row">
+						<div class="col-md-4 col-sm-6">
+							<ul>
+								@for (var i = 0; i < Model.Services.Count; i += 3)
+								{
+									<li>
+										<a href="/eskorte/@Model.Type/@Model.Services[i].Slug" title="@Model.Services[i].Description">
+											@Html.Raw(Model.Services[i].Name)
+										</a>
+									</li>
+								}
+							</ul>
+						</div>
+						<div class="col-md-4 col-sm-6">
+							<ul>
+
+								@for (var i = 1; i < Model.Services.Count; i += 3)
+								{
+									<li>
+										<a href="/eskorte/@Model.Type/@Model.Services[i].Slug" title="@Model.Services[i].Description">
+											@Html.Raw(Model.Services[i].Name)
+										</a>
+									</li>
+								}
+
+							</ul>
+						</div>
+						<div class="col-md-4 col-sm-6">
+							<ul>
+
+								@for (var i = 2; i < Model.Services.Count; i += 3)
+								{
+									<li>
+										<a href="/eskorte/@Model.Type/@Model.Services[i].Slug" title="@Model.Services[i].Description">
+											@Html.Raw(Model.Services[i].Name)
+										</a>
+									</li>
+								}
+
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-lg-4 col-md-12">
+				<div class="sidebar mbl">
+
+					<!-- Search area start -->
+					<div class="widget search-area d-none d-xl-block d-lg-block">
+						<h5 class="sidebar-title">Advanced Search</h5>
+						<div class="search-area-inner">
+							<div class="search-contents ">
+								<form method="POST">
+									<div class="form-group">
+										<label>Region</label>
+										<select class="selectpicker search-fields" name="area">
+											<option>Region</option>
+											@foreach (var region in ViewBag.Regions)
+											{
+												<option>@region.Name</option>
+											}
+										</select>
+									</div>
+									<div class="form-group">
+										<label>City</label>
+										<select class="selectpicker search-fields" name="Status">
+											<option>City</option>
+											@foreach (var city in ViewBag.Cities)
+											{
+												<option>@city.Name</option>
+											}
+										</select>
+									</div>
+
+									<br>
+									<div class="form-group">
+										<label>Price</label>
+										<div class="range-slider">
+											<div data-min="0" data-max="150000" data-unit="USD" data-min-name="min_price" data-max-name="max_price" class="range-slider-ui ui-slider" aria-disabled="false"></div>
+											<div class="clearfix"></div>
+										</div>
+									</div>
+									<br>
+									<h5 class="sidebar-title">Services</h5>
+									<div class="form-group">
+										@foreach (var service in ViewBag.Services)
+										{
+											<div class="form-check checkbox-theme">
+												<input class="form-check-input" type="checkbox" name="@service.Slug" id="@service.Slug">
+												<label class="form-check-label" for="@service.Slug">
+													@service.Name
+												</label>
+											</div>
+										}
+
+										<br />
+										<button class="search-button btn-md btn-color">Search</button>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+
+					<!-- Social list start -->
+					<div class="social-list widget clearfix">
+						<h5 class="sidebar-title">Follow Us</h5>
+						<ul>
+							<li><a href="#" class="facebook-bg"><i class="fa fa-facebook"></i></a></li>
+							<li><a href="#" class="twitter-bg"><i class="fa fa-twitter"></i></a></li>
+							<li><a href="#" class="google-bg"><i class="fa fa-google-plus"></i></a></li>
+							<li><a href="#" class="rss-bg"><i class="fa fa-rss"></i></a></li>
+							<li><a href="#" class="linkedin-bg"><i class="fa fa-linkedin"></i></a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

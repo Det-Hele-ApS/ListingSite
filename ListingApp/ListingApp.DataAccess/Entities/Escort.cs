@@ -25,6 +25,8 @@ namespace ListingApp.DataAccess.Entities
 
 		public ICollection<EscortService> EscortServices { get; set; }
 
+		public ICollection<Image> Images { get; set; }
+
 		public string Description { get; set; }
 
 		public int ExternalId { get; set; }

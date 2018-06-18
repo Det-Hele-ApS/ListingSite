@@ -92,7 +92,7 @@ namespace ListingApp.WebApp
 					defaults: new { controller = "Listing", action = "Index", first = "", second = "", third = "" });
 				routes.MapRoute(
 					name: "profile",
-					template: "profile/{id:guid}",
+					template: "profile/{id:int}",
 					defaults: new { controller = "Profile", action = "Index" });
                 routes.MapRoute(
                     name: "default",

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using ListingApp.BusinessContracts.Services;
+using ListingApp.BusinessEntities.Models;
 using ListingApp.BusinessEntities.Models.Escort;
 using ListingApp.DataAccess;
 using ListingApp.DataAccess.Entities;
@@ -44,6 +45,32 @@ namespace ListingApp.BusinessComponents.Services
 			return await this.db.Escorts
 				.Select(ModelSelector)
 				.ToListAsync();
+		}
+
+		public async Task<EscortModel> GetById(int id)
+		{
+			return await this.db.Escorts
+				.Where(e => e.ExternalId == id)
+				.Select(e => new EscortModel
+				{
+					Id = e.Id,
+					Name = e.Name,
+					Type = e.EscortType.Slug,
+					Description = e.Description,
+					Features = e.EscortFeatures.ToDictionary(ef => ef.FeatureName, ef => ef.FeatureValue),
+					Images = e.Images.Select(i => new ImageModel
+					{
+
+					}).ToList(),
+					Services = e.EscortServices.Select(es => new ServiceModel
+					{
+						Id = es.Service.Id,
+						Name = es.Service.Name,
+						Description = es.Service.Description,
+						Slug = es.Service.Slug
+					}).ToList()
+				})
+				.FirstOrDefaultAsync();
 		}
 
 		public async Task<IList<ListingEscortModel>> GetByAllFilters(string escortType, string serviceName, string city)

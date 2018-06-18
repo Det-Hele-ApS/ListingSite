@@ -90,7 +90,7 @@
 											<div class="form-check checkbox-theme">
 												<input class="form-check-input" type="checkbox" name="@service.Slug" id="@service.Slug">
 												<label class="form-check-label" for="@service.Slug">
-													@service.Name
+													@Html.Raw(service.Name)
 												</label>
 											</div>
 										}
@@ -130,7 +130,7 @@
 						<div class="col-lg-6 col-md-6 col-sm-12">
 							<div class="property-box">
 								<div class="property-thumbnail">
-									<a asp-controller="Profile" asp-action="Index" class="property-img">
+									<a asp-controller="Profile" asp-action="Index" asp-route-id="@escort.ExternalId" class="property-img">
 										<div class="tag button alt featured">Featured</div>
 										<div class="price-ratings-box">
 											<p class="price">
@@ -147,7 +147,9 @@
 										<img src="http://placehold.it/350x233" alt="@escort.Name" class="img-fluid">
 									</a>
 									<div class="property-overlay">
-										<a asp-controller="Profile" asp-action="Index" class="overlay-link">
+										<a asp-controller="Profile" 
+										   asp-action="Index" 
+										   asp-route-id="@escort.ExternalId" class="overlay-link">
 											<i class="fa fa-link"></i>
 										</a>
 										<div class="property-magnify-gallery">
@@ -161,10 +163,12 @@
 								</div>
 								<div class="detail">
 									<h1 class="title">
-										<a asp-controller="Profile" asp-action="Index">@escort.Name</a>
+										<a asp-controller="Profile" 
+										   asp-action="Index"
+										   asp-route-id="@escort.ExternalId">@escort.Name</a>
 									</h1>
 									<div class="location">
-										<a asp-controller="Profile" asp-action="Index">
+										<a asp-controller="Profile" asp-action="Index" asp-route-id="@escort.ExternalId">
 											<i class="fa fa-map-marker"></i>@escort.EscortType
 										</a>
 									</div>

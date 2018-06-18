@@ -1,5 +1,4 @@
 ﻿using ListingApp.BusinessEntities.Models.Escort;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -8,6 +7,8 @@ namespace ListingApp.BusinessContracts.Services
 	public interface IEscortService
     {
 		Task<IList<ListingEscortModel>> GetAll();
+
+		Task<EscortModel> GetById(int id);
 
 		Task<IList<ListingEscortModel>> GetByEscortType(string escortType);
 
