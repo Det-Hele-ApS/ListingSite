@@ -24,8 +24,8 @@ namespace ListingApp.BusinessComponents.Services
 				 Name = e.Name,
 				 MainImage = new ImageModel
 				 {
-					 Path = e.Images.FirstOrDefault(i => i.IsPrimary).Path,
-					 SmallPath = e.Images.FirstOrDefault(i => i.IsPrimary).SmallPath
+					 Path = e.Images.FirstOrDefault(i => i.IsPrimary || i.SortOrder == e.Images.Min(im => im.SortOrder)).Path,
+					 SmallPath = e.Images.FirstOrDefault(i => i.IsPrimary || i.SortOrder == e.Images.Min(im => im.SortOrder)).SmallPath
 				 },
 				 Services = e.EscortServices.Select(s => new ListingServiceModel
 				 {
