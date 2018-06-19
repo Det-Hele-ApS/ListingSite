@@ -119,7 +119,8 @@
 												@if (kvp1++ % 3 == 0)
 												{
 													<li>
-														<strong>@Html.Raw(kvp.Key)</strong>@Html.Raw(kvp.Value)
+														<strong>@Html.Raw(kvp.Key)</strong>
+														<span class="pull-right">@Html.Raw(kvp.Value)</span>
 													</li>
 												}
 											}
@@ -136,7 +137,8 @@
 												@if (kvp2++ % 3 == 1)
 												{
 													<li>
-														<strong>@Html.Raw(kvp.Key)</strong>@Html.Raw(kvp.Value)
+														<strong>@Html.Raw(kvp.Key)</strong>
+														<span class="pull-right">@Html.Raw(kvp.Value)</span>
 													</li>
 												}
 											}
@@ -153,7 +155,8 @@
 												@if (kvp3++ % 3 == 2)
 												{
 													<li>
-														<strong>@Html.Raw(kvp.Key)</strong>@Html.Raw(kvp.Value)
+														<strong>@Html.Raw(kvp.Key)</strong>
+														<span class="pull-right">@Html.Raw(kvp.Value)</span>
 													</li>
 												}
 											}
@@ -239,7 +242,7 @@
 											<option>City</option>
 											@foreach (var city in ViewBag.Cities)
 											{
-												<option>@city.Name</option>
+												<option>@Html.Raw(city.Name)</option>
 											}
 										</select>
 									</div>

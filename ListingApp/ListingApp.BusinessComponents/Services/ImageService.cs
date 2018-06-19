@@ -36,10 +36,21 @@ namespace ListingApp.BusinessComponents.Services
 
 		public async Task<ImageModel> GetPrimaryImageByEscortId(Guid escortId)
 		{
-			return await this.db.Images
+			var primaryImage = await this.db.Images
 				.Where(i => i.EscortId == escortId && i.IsPrimary)
 				.Select(i => this.mapper.Map<ImageModel>(i))
 				.FirstOrDefaultAsync();
+
+			if(primaryImage == null)
+			{
+				var minSortOrder = await this.db.Images.MinAsync(i => i.SortOrder);
+				primaryImage = await this.db.Images
+					.Where(i => i.EscortId == escortId && i.SortOrder == minSortOrder)
+					.Select(i => this.mapper.Map<ImageModel>(i))
+					.FirstOrDefaultAsync();
+			}
+
+			return primaryImage;
 		}
 	}
 }
