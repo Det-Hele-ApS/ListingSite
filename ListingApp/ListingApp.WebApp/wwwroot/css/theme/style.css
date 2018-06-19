@@ -79,6 +79,7 @@ body {
 	display: block;
 	margin: auto;
 	max-height: 780px;
+	min-height: 780px;
 }
 
 .img-fluid {

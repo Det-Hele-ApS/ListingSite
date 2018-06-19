@@ -25,8 +25,16 @@ namespace ListingApp.BusinessComponents.Services
 		public async Task<IList<CityModel>> GetAll()
 		{
 			return await this.dbContext.Cities
-				.Include(c => c.Region)
-				.Select(c => this.mapper.Map<City, CityModel>(c))
+				.Select(c => new CityModel
+				{
+					Name = c.Name,
+					Slug = c.Slug,
+					Region = new RegionModel
+					{
+						Id = c.Region.Id,
+						Name = c.Region.Name
+					}
+				})
 				.ToListAsync();
 		}
 
