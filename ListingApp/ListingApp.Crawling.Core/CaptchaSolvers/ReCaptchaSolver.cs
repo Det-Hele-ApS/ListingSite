@@ -19,13 +19,14 @@ namespace ListingApp.Crawling.Core.CaptchaSolvers
 			this.invalidAttemptsCount = config.InvalidAttemptsCount;
 		}
 
-		public string Solve(string googleKey, string url)
+		public string Solve(string googleKey, string url, string proxy)
 		{
 			Captcha result = null;
 			var attemptsCount = 0;
 			var tokenParams = "{\"googlekey\": \"" + googleKey + "\", \"pageurl\": \"" + url + "\"}";
 			var extData = new Hashtable
 			{
+				{ "proxy", proxy },
 				{ "type", CaptchaType },
 				{ "token_params", tokenParams }
 			};

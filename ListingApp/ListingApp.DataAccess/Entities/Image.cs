@@ -13,6 +13,11 @@ namespace ListingApp.DataAccess.Entities
 		[Required]
 		public string Path { get; set; }
 
+		public string SmallPath { get; set; }
+
+		[Required]
+		public string ExternalLink { get; set; }
+
 		public int SortOrder { get; set; }
 
 		public Guid EscortId { get; set; }

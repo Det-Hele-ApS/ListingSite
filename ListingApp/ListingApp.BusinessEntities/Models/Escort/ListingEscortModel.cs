@@ -10,6 +10,8 @@ namespace ListingApp.BusinessEntities.Models.Escort
 
 		public string EscortType { get; set; }
 
+		public ImageModel MainImage { get; set; }
+
 		public IEnumerable<ListingServiceModel> Services { get; set; }
 	}
 }

@@ -1,4 +1,6 @@
 ﻿using CsQuery;
+using ListingApp.BusinessComponents.Services;
+using ListingApp.BusinessContracts.Services;
 using ListingApp.Crawling.Core.CaptchaSolvers;
 using ListingApp.Crawling.Core.Config;
 using ListingApp.DataAccess;
@@ -7,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -33,7 +34,13 @@ namespace ListingApp.Crawling.Core.Parsers
 		// {url}/ads/category/{categoryName}/{regionId}/{region_slug}
 		private const string RegionTemplate = "{0}/ads/category/{1}/{2}/{3}";
 
+		private const string ProxyData = "http://giufhna-j5jtb:u9hROcAgme@216.10.3.74:3199";
+
+		private const string StorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=finneskorteprodstorage;AccountKey=7netpM+zWW6/6TnHL45p2uTHHm9+fQbVgIiTn7XaeJhUVieLZZ8a1PI0mrabaCJXBKhruXo+/0rw1S6MIL5ZCQ==;EndpointSuffix=core.windows.net";
+
 		private readonly ReCaptchaSolver captchaSolver;
+
+		private readonly IAzureUploadService uploadService;
 
 		private readonly AppDbContext dbContext;
 
@@ -44,6 +51,7 @@ namespace ListingApp.Crawling.Core.Parsers
 		public RealEscortParser(DeathByCaptchaConfig config, string connectionString)
 		{
 			this.captchaSolver = new ReCaptchaSolver(config);
+			this.uploadService = new AzureUploadService();
 
 			var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
 			optionsBuilder.UseSqlServer(connectionString);
@@ -54,7 +62,14 @@ namespace ListingApp.Crawling.Core.Parsers
 				AllowAutoRedirect = true,
 				UseCookies = true,
 				CookieContainer = new CookieContainer(),
-				AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+				AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
+				UseProxy = true,
+				Proxy = new WebProxy
+				{
+					Address = new Uri("http://216.10.3.74:3199"),
+					UseDefaultCredentials = false,
+					Credentials = new NetworkCredential("giufhna-j5jtb", "u9hROcAgme")					
+				}
 			};
 
 			//if(File.Exists("cookie.txt"))
@@ -245,7 +260,7 @@ namespace ListingApp.Crawling.Core.Parsers
 			}
 
 			Console.WriteLine("Solving {0} - {1}", googleKey, url);
-			var captchaAnswer = this.captchaSolver.Solve(googleKey, url);
+			var captchaAnswer = this.captchaSolver.Solve(googleKey, url, ProxyData);
 			postUrl += captchaAnswer;
 
 			Console.WriteLine("post url: {0}", postUrl);
@@ -267,17 +282,109 @@ namespace ListingApp.Crawling.Core.Parsers
 				.FirstOrDefaultAsync();
 			var name = infoBlock.Find("h2").First().Text();
 			var description = cq.Find("div.description div.content p").First().Text();
-			var escort = new Escort
+
+			var isNewEscort = false;
+			var escort = await this.dbContext.Escorts
+				.Where(e => e.ExternalId == escortExternalId)
+				.FirstOrDefaultAsync();
+
+			if(escort == null)
 			{
-				Name = name,
-				Description = description,
-				ExternalId = escortExternalId,
-				EscortTypeId = escortTypeId
-			};
+				escort = new Escort();
+				isNewEscort = true;
+			}
+
+			escort.Name = name;
+			escort.Description = description;
+			escort.ExternalId = escortExternalId;
+			escort.EscortTypeId = escortTypeId;
+
+			if (isNewEscort)
+			{
+				await this.dbContext.Escorts.AddAsync(escort);
+			}
+
+			await this.dbContext.SaveChangesAsync();
+
+			// Images
+			try
+			{
+				var images = new List<Image>();
+				var imagesDiv = cq.Find("div.images");
+				var primaryImageLink = imagesDiv.Find("div.img a");
+				var otherImageLinks = imagesDiv.Find("div.other div.xs-25 a");
+
+				var imageOrder = 0;
+				images.Add(new Image
+				{
+					IsPrimary = true,
+					ExternalLink = primaryImageLink.Attr("href"),
+					SmallPath = primaryImageLink.Find("img").Attr("src"),
+					SortOrder = imageOrder++
+				});
+
+				foreach (var other in otherImageLinks)
+				{
+					images.Add(new Image
+					{
+						IsPrimary = false,
+						ExternalLink = other.GetAttribute("href"),
+						SmallPath = other.FirstChild.GetAttribute("src"),
+						SortOrder = imageOrder++
+					});
+				}
+
+				foreach (var image in images)
+				{
+					if (await this.dbContext.Images.AnyAsync(i => i.ExternalLink == image.ExternalLink))
+					{
+						continue;
+					}
+
+					var imageName = image.ExternalLink
+						.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
+						.Last();
+					var smallImageName = image.SmallPath
+						.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
+						.Last();
+
+					var imageUrl = $"{BaseUrl}/{image.ExternalLink}";
+					var smallImageUrl = $"{BaseUrl}/{image.SmallPath}";
+
+					var imageResponse = await this.SendRequest(imageUrl, HttpMethod.Get, url);
+					var smallImageResponse = await this.SendRequest(smallImageUrl, HttpMethod.Get, url);
+
+					var imageData = await imageResponse.Content.ReadAsByteArrayAsync();
+					var smallImageData = await smallImageResponse.Content.ReadAsByteArrayAsync();
+
+					var imageUri = await this.uploadService.Upload(StorageConnectionString, imageName, imageData);
+					var smallImageUri = await this.uploadService.Upload(StorageConnectionString, smallImageName, smallImageData);
+
+					// File.WriteAllBytes(imageName, await imageData.Content.ReadAsByteArrayAsync());
+					// File.WriteAllBytes(smallImageName, await smallImageData.Content.ReadAsByteArrayAsync());
+
+					await this.dbContext.Images.AddAsync(new Image
+					{
+						EscortId = escort.Id,
+						ExternalLink = image.ExternalLink,
+						IsPrimary = image.IsPrimary,
+						Path = imageUri,
+						SmallPath = smallImageUri,
+						SortOrder = image.SortOrder
+					});
+				}
+
+				await this.dbContext.SaveChangesAsync();
+			}
+			catch
+			{
+				Console.WriteLine("Error occured during parsing images.");
+			}
 
 			// Features
 			var features = new List<EscortFeature>();
 			var list = infoBlock.Find("div.list div.row");
+			var featureOrder = 0;
 			foreach(var row in list)
 			{
 				try
@@ -287,12 +394,15 @@ namespace ListingApp.Crawling.Core.Parsers
 
 					if (!string.IsNullOrEmpty(value)
 						&& !string.IsNullOrEmpty(title)
-						&& !features.Any(f => f.FeatureName == title))
+						&& !features.Any(f => f.FeatureName == title)
+						&& !await this.dbContext.EscortFeatures.AnyAsync(f => f.FeatureName == title && f.EscortId == escort.Id))
 					{
 						features.Add(new EscortFeature
 						{
 							FeatureName = title,
-							FeatureValue = value
+							FeatureValue = value,
+							EscortId = escort.Id,
+							Order = featureOrder++
 						});
 					}
 				}
@@ -301,6 +411,8 @@ namespace ListingApp.Crawling.Core.Parsers
 					continue;
 				}
 			}
+
+			await this.dbContext.EscortFeatures.AddRangeAsync(features);
 
 			// Services
 			var services = new List<Service>();
@@ -334,16 +446,6 @@ namespace ListingApp.Crawling.Core.Parsers
 				catch { }
 			}
 
-			await this.dbContext.Escorts.AddAsync(escort);
-			await this.dbContext.SaveChangesAsync();
-
-			for (var i = 0; i != features.Count; i++)
-			{
-				features[i].EscortId = escort.Id;
-			}
-
-			await this.dbContext.EscortFeatures.AddRangeAsync(features);
-
 			foreach(var service in services)
 			{
 				var serv = await this.dbContext.Services
@@ -351,11 +453,14 @@ namespace ListingApp.Crawling.Core.Parsers
 					.Where(s => s.ExternalId == service.ExternalId)
 					.FirstOrDefaultAsync();
 
-				serv.EscortServices.Add(new EscortService
+				if (!serv.EscortServices.Any(es => es.EscortId == escort.Id && es.ServiceId == serv.Id))
 				{
-					EscortId = escort.Id,
-					ServiceId = serv.Id
-				});
+					serv.EscortServices.Add(new DataAccess.Entities.EscortService
+					{
+						EscortId = escort.Id,
+						ServiceId = serv.Id
+					});
+				}
 
 				await this.dbContext.SaveChangesAsync();
 			}

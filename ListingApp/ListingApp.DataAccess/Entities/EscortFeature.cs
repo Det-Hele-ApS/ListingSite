@@ -11,6 +11,8 @@ namespace ListingApp.DataAccess.Entities
 		[Required]
 		public string FeatureValue { get; set; }
 
+		public int Order { get; set; }
+
 		[Required]
 		public Guid EscortId { get; set; }
 

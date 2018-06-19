@@ -22,6 +22,11 @@ namespace ListingApp.BusinessComponents.Services
 				 ExternalId = e.ExternalId,
 				 EscortType = e.EscortType.ExternalName,
 				 Name = e.Name,
+				 MainImage = new ImageModel
+				 {
+					 Path = e.Images.FirstOrDefault(i => i.IsPrimary).Path,
+					 SmallPath = e.Images.FirstOrDefault(i => i.IsPrimary).SmallPath
+				 },
 				 Services = e.EscortServices.Select(s => new ListingServiceModel
 				 {
 					 Name = s.Service.Name,
@@ -60,8 +65,10 @@ namespace ListingApp.BusinessComponents.Services
 					Features = e.EscortFeatures.ToDictionary(ef => ef.FeatureName, ef => ef.FeatureValue),
 					Images = e.Images.Select(i => new ImageModel
 					{
-
-					}).ToList(),
+						Path = i.Path,
+						SmallPath = i.SmallPath,
+						SortOrder = i.SortOrder
+					}).OrderBy(i => i.SortOrder).ToList(),
 					Services = e.EscortServices.Select(es => new ServiceModel
 					{
 						Id = es.Service.Id,

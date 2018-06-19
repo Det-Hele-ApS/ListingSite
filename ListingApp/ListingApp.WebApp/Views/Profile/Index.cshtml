@@ -48,7 +48,7 @@
 						@foreach (var image in Model.Images)
 						{
 							<div class="item carousel-item" data-slide-number="0">
-								<img src="http://placehold.it/730x486" class="img-fluid" alt="TODO">
+								<img src="@image.Path" class="img-fluid" alt="TODO">
 							</div>
 						}
 						<a class="carousel-control left" href="#propertiesDetailsSlider" data-slide="prev"><i class="fa fa-angle-left"></i></a>
@@ -60,7 +60,7 @@
 						{
 							<li class="list-inline-item active">
 								<a id="carousel-selector-0" class="selected" data-slide-to="0" data-target="#propertiesDetailsSlider">
-									<img src="http://placehold.it/146x97" class="img-fluid" alt="TODO">
+									<img src="@image.SmallPath" class="img-fluid" alt="TODO">
 								</a>
 							</li>
 						}
@@ -86,7 +86,7 @@
 
 						<div class="tab-pane fade " id="three" role="tabpanel" aria-labelledby="three-tab">
 							<div class="property-details">
-								<h3 class="heading">Property Details</h3>
+								<h3 class="heading">Details</h3>
 								<div class="row">
 									<div class="col-md-4 col-sm-6">
 										<ul>
@@ -148,7 +148,7 @@
 
 				<!-- Features opions start -->
 				<div class="features-opions mb-60">
-					<h3 class="heading">Features</h3>
+					<h3 class="heading">Services</h3>
 					<div class="row">
 						<div class="col-md-4 col-sm-6">
 							<ul>

@@ -144,7 +144,7 @@
 												<i class="fa fa-star-o"></i>
 											</div>
 										</div>
-										<img src="http://placehold.it/350x233" alt="@escort.Name" class="img-fluid">
+										<img src="@escort.MainImage.SmallPath" alt="@escort.Name" class="img-fluid">
 									</a>
 									<div class="property-overlay">
 										<a asp-controller="Profile" 
@@ -153,11 +153,11 @@
 											<i class="fa fa-link"></i>
 										</a>
 										<div class="property-magnify-gallery">
-											<a href="http://placehold.it/750x540" class="overlay-link">
+											<a href="@escort.MainImage.Path" class="overlay-link">
 												<i class="fa fa-expand"></i>
 											</a>
-											<a href="http://placehold.it/750x540" class="hidden"></a>
-											<a href="http://placehold.it/750x540" class="hidden"></a>
+											<a href="@escort.MainImage.Path" class="hidden"></a>
+											<a href="@escort.MainImage.Path" class="hidden"></a>
 										</div>
 									</div>
 								</div>
