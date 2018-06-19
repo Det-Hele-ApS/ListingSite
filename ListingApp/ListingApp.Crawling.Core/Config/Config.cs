@@ -5,5 +5,11 @@
 		public DeathByCaptchaConfig DeathByCaptchaConfig { get; set; }
 
 		public string ConnectionString { get; set; }
+
+		public string StorageConnectionString { get; set; }
+
+		public int RequestCooldown { get; set; }
+
+		public ProxyConfig[] Proxies { get; set; }
     }
 }

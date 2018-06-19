@@ -75,6 +75,12 @@ body {
 	color: #535353;
 }
 
+.img-center {
+	display: block;
+	margin: auto;
+	max-height: 780px;
+}
+
 .img-fluid {
 	max-width: 100% !important;
 	height: auto;

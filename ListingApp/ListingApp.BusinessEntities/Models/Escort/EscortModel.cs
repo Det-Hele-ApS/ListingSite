@@ -13,6 +13,8 @@ namespace ListingApp.BusinessEntities.Models.Escort
 
 		public string Description { get; set; }
 
+		public string PhoneNumber { get; set; }
+
 		public IList<ImageModel> Images { get; set; }
 
 		public Dictionary<string, string> Features { get; set; }

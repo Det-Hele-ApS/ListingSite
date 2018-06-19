@@ -2,7 +2,6 @@
 using ListingApp.BusinessComponents.Services;
 using ListingApp.BusinessContracts.Services;
 using ListingApp.Crawling.Core.CaptchaSolvers;
-using ListingApp.Crawling.Core.Config;
 using ListingApp.DataAccess;
 using ListingApp.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -21,9 +20,6 @@ namespace ListingApp.Crawling.Core.Parsers
 {
 	public class RealEscortParser
     {
-		// Time in seconds we wait between requests.
-		private const int RequestCooldown = 5000;
-
 		private const string Host = "www.realescort.eu";
 
 		private const string BaseUrl = "http://www.realescort.eu";
@@ -34,9 +30,12 @@ namespace ListingApp.Crawling.Core.Parsers
 		// {url}/ads/category/{categoryName}/{regionId}/{region_slug}
 		private const string RegionTemplate = "{0}/ads/category/{1}/{2}/{3}";
 
-		private const string ProxyData = "http://giufhna-j5jtb:u9hROcAgme@216.10.3.74:3199";
+		// Time in milliseconds we wait between requests.
+		private readonly int requestCooldown;
 
-		private const string StorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=finneskorteprodstorage;AccountKey=7netpM+zWW6/6TnHL45p2uTHHm9+fQbVgIiTn7XaeJhUVieLZZ8a1PI0mrabaCJXBKhruXo+/0rw1S6MIL5ZCQ==;EndpointSuffix=core.windows.net";
+		private readonly string proxyData;
+
+		private readonly string storageConnectionString;
 
 		private readonly ReCaptchaSolver captchaSolver;
 
@@ -48,14 +47,22 @@ namespace ListingApp.Crawling.Core.Parsers
 
 		private readonly HttpClient client;
 
-		public RealEscortParser(DeathByCaptchaConfig config, string connectionString)
+		public RealEscortParser(Config.Config config)
 		{
-			this.captchaSolver = new ReCaptchaSolver(config);
+			this.captchaSolver = new ReCaptchaSolver(config.DeathByCaptchaConfig);
 			this.uploadService = new AzureUploadService();
 
 			var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-			optionsBuilder.UseSqlServer(connectionString);
+			optionsBuilder.UseSqlServer(config.ConnectionString);
 			this.dbContext = new AppDbContext(optionsBuilder.Options);
+
+			var random = new Random(this.GetCurrentUnixTime());
+			var proxyIndex = random.Next(0, config.Proxies.Length - 1);
+			var proxy = config.Proxies[proxyIndex];
+
+			this.requestCooldown = random.Next(1000, config.RequestCooldown);
+			this.proxyData = $"{proxy.Schema}://{proxy.Username}:{proxy.Password}@{proxy.Host}:{proxy.Port}";
+			this.storageConnectionString = config.StorageConnectionString;
 
 			this.handler = new HttpClientHandler
 			{
@@ -66,21 +73,13 @@ namespace ListingApp.Crawling.Core.Parsers
 				UseProxy = true,
 				Proxy = new WebProxy
 				{
-					Address = new Uri("http://216.10.3.74:3199"),
+					Address = new Uri($"{proxy.Schema}://{proxy.Host}:{proxy.Port}"),
 					UseDefaultCredentials = false,
-					Credentials = new NetworkCredential("giufhna-j5jtb", "u9hROcAgme")					
+					Credentials = new NetworkCredential(proxy.Username, proxy.Password)					
 				}
 			};
 
-			//if(File.Exists("cookie.txt"))
-			//{
-			//	var cookieValue = File.ReadAllText("cookie.txt");
-			//	handler.CookieContainer.Add(new Cookie("cf_clearance", cookieValue, "/", ".realescort.eu"));
-			//}
-
 			this.client = new HttpClient(this.handler);
-
-			Console.WriteLine(JsonConvert.SerializeObject(new { str = "Checking packages..." }).ToString());
 		}
 
 		public async Task Parse()
@@ -95,12 +94,8 @@ namespace ListingApp.Crawling.Core.Parsers
 					et.ExternalId
 				}).ToListAsync();
 
-			var regions = await this.dbContext.Regions
-				.Select(r => new
-				{
-					r.Slug,
-					r.ExternalId
-				}).ToListAsync();
+			var regions = await this.dbContext.Regions.ToListAsync();
+			await this.ParseCities(regions);			
 
 			foreach(var category in categories)
 			{
@@ -121,7 +116,7 @@ namespace ListingApp.Crawling.Core.Parsers
 
 						if (response.StatusCode == HttpStatusCode.Forbidden)
 						{
-							Thread.Sleep(RequestCooldown);
+							Thread.Sleep(this.requestCooldown);
 							await this.Solve(html, ApiUrl);
 						}
 						else if(response.StatusCode == HttpStatusCode.NotFound)
@@ -138,7 +133,7 @@ namespace ListingApp.Crawling.Core.Parsers
 								var relUrl = link.GetAttribute("href");
 								var girlUrl = $"{BaseUrl}/{relUrl}";
 
-								Thread.Sleep(RequestCooldown);
+								Thread.Sleep(this.requestCooldown);
 
 								var girlResponse = await this.SendRequest(girlUrl, HttpMethod.Get, pageUrl);
 								if(girlResponse.StatusCode == HttpStatusCode.OK)
@@ -157,7 +152,7 @@ namespace ListingApp.Crawling.Core.Parsers
 							}
 						}
 
-						Thread.Sleep(RequestCooldown);
+						Thread.Sleep(this.requestCooldown);
 					}
 				}
 			}
@@ -172,6 +167,12 @@ namespace ListingApp.Crawling.Core.Parsers
 				page = page,
 				reload = false
 			}).ToString();
+		}
+
+		private int GetCurrentUnixTime()
+		{
+			var start = new DateTime(1970, 1, 1, 0, 0, 0, 0);
+			return (DateTime.Now - start).Milliseconds;
 		}
 
 		private async Task<HttpResponseMessage> SendRequest(string url, HttpMethod method, string referer, string bodyContent = null, bool solve = true)
@@ -196,10 +197,10 @@ namespace ListingApp.Crawling.Core.Parsers
 			if(solve && response.StatusCode == HttpStatusCode.Forbidden)
 			{
 				Console.WriteLine("Forbidden.");
-				Thread.Sleep(RequestCooldown);
+				Thread.Sleep(this.requestCooldown);
 				await this.Solve(await response.Content.ReadAsStringAsync(), url);
 				Console.WriteLine("Solved. Resending.");
-				Thread.Sleep(RequestCooldown);
+				Thread.Sleep(this.requestCooldown);
 				return await this.SendRequest(url, method, referer, bodyContent);
 			}
 
@@ -260,7 +261,7 @@ namespace ListingApp.Crawling.Core.Parsers
 			}
 
 			Console.WriteLine("Solving {0} - {1}", googleKey, url);
-			var captchaAnswer = this.captchaSolver.Solve(googleKey, url, ProxyData);
+			var captchaAnswer = this.captchaSolver.Solve(googleKey, url, this.proxyData);
 			postUrl += captchaAnswer;
 
 			Console.WriteLine("post url: {0}", postUrl);
@@ -283,6 +284,21 @@ namespace ListingApp.Crawling.Core.Parsers
 			var name = infoBlock.Find("h2").First().Text();
 			var description = cq.Find("div.description div.content p").First().Text();
 
+			var phoneH3 = cq.Find("div.contact div.content div.row div.phone h3");
+			var phoneNumber = phoneH3.Text().Substring(5, 13);
+
+			var phoneLink = phoneH3.Find("a");
+			var phoneUrl = phoneLink.Attr("href");
+
+			if (phoneLink != null && !string.IsNullOrEmpty(phoneUrl))
+			{
+				Console.WriteLine("TODO: Solve phone number captcha.");
+				/*
+				var phoneRespone = await this.SendRequest($"{BaseUrl}/{phoneUrl}/data", HttpMethod.Get, url);
+				phoneNumber = await phoneRespone.Content.ReadAsStringAsync();
+				*/
+			}
+
 			var isNewEscort = false;
 			var escort = await this.dbContext.Escorts
 				.Where(e => e.ExternalId == escortExternalId)
@@ -298,6 +314,7 @@ namespace ListingApp.Crawling.Core.Parsers
 			escort.Description = description;
 			escort.ExternalId = escortExternalId;
 			escort.EscortTypeId = escortTypeId;
+			escort.Phone = phoneNumber;
 
 			if (isNewEscort)
 			{
@@ -306,7 +323,50 @@ namespace ListingApp.Crawling.Core.Parsers
 
 			await this.dbContext.SaveChangesAsync();
 
-			// Images
+			await this.DownloadImages(cq, escort.Id, url);
+			await this.ParseFeatures(infoBlock, escort.Id);
+			await this.ParseServices(cq, escort.Id);
+
+			await this.dbContext.SaveChangesAsync();
+		}
+
+		private async Task ParseCities(List<Region> regions)
+		{
+			foreach (var region in regions)
+			{
+				var citiesUrl = $"{BaseUrl}/modals/cities/{region.ExternalId}";
+				var citiesResponse = await this.SendRequest(citiesUrl, HttpMethod.Get, BaseUrl);
+				var citiesHtml = await citiesResponse.Content.ReadAsStringAsync();
+				var lis = CQ.Create(citiesHtml).Find("div.content ul li");
+				foreach (var li in lis)
+				{
+					var city = li.InnerText;
+					if (!await this.dbContext.Cities.AnyAsync(c => c.Name == city && c.RegionId == region.Id))
+					{
+						await this.dbContext.Cities.AddAsync(new City
+						{
+							Name = city,
+							RegionId = region.Id,
+							Slug = city
+								.ToLower()
+								.Replace(' ', '-')
+								.Replace("(", string.Empty)
+								.Replace(")", string.Empty)
+								.Replace("&#197;", "a")
+								.Replace("&#216;", "o")
+								.Replace("&#229;", "a")
+								.Replace("&#230;", "a")
+								.Replace("&#248;", "o")
+						});
+					}
+				}
+			}
+
+			await this.dbContext.SaveChangesAsync();
+		}
+
+		private async Task DownloadImages(CQ cq, Guid escortId, string escortUrl)
+		{
 			try
 			{
 				var images = new List<Image>();
@@ -351,21 +411,18 @@ namespace ListingApp.Crawling.Core.Parsers
 					var imageUrl = $"{BaseUrl}/{image.ExternalLink}";
 					var smallImageUrl = $"{BaseUrl}/{image.SmallPath}";
 
-					var imageResponse = await this.SendRequest(imageUrl, HttpMethod.Get, url);
-					var smallImageResponse = await this.SendRequest(smallImageUrl, HttpMethod.Get, url);
+					var imageResponse = await this.SendRequest(imageUrl, HttpMethod.Get, escortUrl);
+					var smallImageResponse = await this.SendRequest(smallImageUrl, HttpMethod.Get, escortUrl);
 
 					var imageData = await imageResponse.Content.ReadAsByteArrayAsync();
 					var smallImageData = await smallImageResponse.Content.ReadAsByteArrayAsync();
 
-					var imageUri = await this.uploadService.Upload(StorageConnectionString, imageName, imageData);
-					var smallImageUri = await this.uploadService.Upload(StorageConnectionString, smallImageName, smallImageData);
-
-					// File.WriteAllBytes(imageName, await imageData.Content.ReadAsByteArrayAsync());
-					// File.WriteAllBytes(smallImageName, await smallImageData.Content.ReadAsByteArrayAsync());
+					var imageUri = await this.uploadService.Upload(this.storageConnectionString, imageName, imageData);
+					var smallImageUri = await this.uploadService.Upload(this.storageConnectionString, smallImageName, smallImageData);
 
 					await this.dbContext.Images.AddAsync(new Image
 					{
-						EscortId = escort.Id,
+						EscortId = escortId,
 						ExternalLink = image.ExternalLink,
 						IsPrimary = image.IsPrimary,
 						Path = imageUri,
@@ -380,12 +437,14 @@ namespace ListingApp.Crawling.Core.Parsers
 			{
 				Console.WriteLine("Error occured during parsing images.");
 			}
+		}
 
-			// Features
+		private async Task ParseFeatures(CQ infoBlock, Guid escortId)
+		{
 			var features = new List<EscortFeature>();
 			var list = infoBlock.Find("div.list div.row");
 			var featureOrder = 0;
-			foreach(var row in list)
+			foreach (var row in list)
 			{
 				try
 				{
@@ -395,13 +454,13 @@ namespace ListingApp.Crawling.Core.Parsers
 					if (!string.IsNullOrEmpty(value)
 						&& !string.IsNullOrEmpty(title)
 						&& !features.Any(f => f.FeatureName == title)
-						&& !await this.dbContext.EscortFeatures.AnyAsync(f => f.FeatureName == title && f.EscortId == escort.Id))
+						&& !await this.dbContext.EscortFeatures.AnyAsync(f => f.FeatureName == title && f.EscortId == escortId))
 					{
 						features.Add(new EscortFeature
 						{
 							FeatureName = title,
 							FeatureValue = value,
-							EscortId = escort.Id,
+							EscortId = escortId,
 							Order = featureOrder++
 						});
 					}
@@ -413,11 +472,13 @@ namespace ListingApp.Crawling.Core.Parsers
 			}
 
 			await this.dbContext.EscortFeatures.AddRangeAsync(features);
+		}
 
-			// Services
+		private async Task ParseServices(CQ cq, Guid escortId)
+		{
 			var services = new List<Service>();
 			var servicesList = cq.Find("div.services.gives div.content div.dash-list span a");
-			foreach(var serviceLink in servicesList)
+			foreach (var serviceLink in servicesList)
 			{
 				try
 				{
@@ -443,29 +504,30 @@ namespace ListingApp.Crawling.Core.Parsers
 
 					services.Add(service);
 				}
-				catch { }
+				catch
+				{
+					continue;
+				}
 			}
 
-			foreach(var service in services)
+			foreach (var service in services)
 			{
 				var serv = await this.dbContext.Services
 					.Include(s => s.EscortServices)
 					.Where(s => s.ExternalId == service.ExternalId)
 					.FirstOrDefaultAsync();
 
-				if (!serv.EscortServices.Any(es => es.EscortId == escort.Id && es.ServiceId == serv.Id))
+				if (!serv.EscortServices.Any(es => es.EscortId == escortId && es.ServiceId == serv.Id))
 				{
 					serv.EscortServices.Add(new DataAccess.Entities.EscortService
 					{
-						EscortId = escort.Id,
+						EscortId = escortId,
 						ServiceId = serv.Id
 					});
 				}
 
 				await this.dbContext.SaveChangesAsync();
 			}
-
-			await this.dbContext.SaveChangesAsync();
 		}
     }
 }

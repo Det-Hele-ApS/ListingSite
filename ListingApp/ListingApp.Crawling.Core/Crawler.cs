@@ -6,7 +6,7 @@ namespace ListingApp.Crawling.Core
     {
 		public Crawler(Config.Config config)
 		{
-			var parser = new RealEscortParser(config.DeathByCaptchaConfig, config.ConnectionString);
+			var parser = new RealEscortParser(config);
 			parser.Parse().GetAwaiter().GetResult();
 		}
     }

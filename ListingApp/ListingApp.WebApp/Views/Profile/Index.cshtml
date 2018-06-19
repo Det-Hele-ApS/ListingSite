@@ -45,24 +45,44 @@
 					</div>
 					<!-- main slider carousel items -->
 					<div class="carousel-inner">
-						@foreach (var image in Model.Images)
+						@for (var imageIndex = 0; imageIndex != Model.Images.Count; imageIndex++)
 						{
-							<div class="item carousel-item" data-slide-number="0">
-								<img src="@image.Path" class="img-fluid" alt="TODO">
-							</div>
+							@if (imageIndex == 0)
+							{
+								<div class="active item carousel-item" data-slide-number="@imageIndex">
+									<img src="@Model.Images[imageIndex].Path" class="img-center img-fluid" alt="@Model.Name">
+								</div>
+							}
+							else
+							{
+								<div class="item carousel-item" data-slide-number="@imageIndex">
+									<img src="@Model.Images[imageIndex].Path" class="img-center img-fluid" alt="@Model.Name">
+								</div>
+							}
 						}
 						<a class="carousel-control left" href="#propertiesDetailsSlider" data-slide="prev"><i class="fa fa-angle-left"></i></a>
 						<a class="carousel-control right" href="#propertiesDetailsSlider" data-slide="next"><i class="fa fa-angle-right"></i></a>
 					</div>
 					<!-- main slider carousel nav controls -->
 					<ul class="carousel-indicators smail-properties list-inline nav nav-justified">
-						@foreach (var image in Model.Images)
+						@for (var imageIndex = 0; imageIndex != Model.Images.Count; imageIndex++)
 						{
-							<li class="list-inline-item active">
-								<a id="carousel-selector-0" class="selected" data-slide-to="0" data-target="#propertiesDetailsSlider">
-									<img src="@image.SmallPath" class="img-fluid" alt="TODO">
-								</a>
-							</li>
+							@if (imageIndex == 0)
+							{
+								<li class="list-inline-item active">
+									<a id="carousel-selector-@imageIndex" class="selected" data-slide-to="@imageIndex" data-target="#propertiesDetailsSlider">
+										<img src="@Model.Images[imageIndex].SmallPath" class="img-fluid" alt="@Model.Name">
+									</a>
+								</li>
+							}
+							else
+							{
+								<li class="list-inline-item">
+									<a id="carousel-selector-@imageIndex" class="selected" data-slide-to="@imageIndex" data-target="#propertiesDetailsSlider">
+										<img src="@Model.Images[imageIndex].SmallPath" class="img-fluid" alt="@Model.Name">
+									</a>
+								</li>
+							}
 						}
 					</ul>
 				</div>
@@ -240,7 +260,7 @@
 											<div class="form-check checkbox-theme">
 												<input class="form-check-input" type="checkbox" name="@service.Slug" id="@service.Slug">
 												<label class="form-check-label" for="@service.Slug">
-													@service.Name
+													@Html.Raw(service.Name)
 												</label>
 											</div>
 										}

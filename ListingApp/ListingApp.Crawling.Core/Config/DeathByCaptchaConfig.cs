@@ -7,6 +7,5 @@
 		public string Password { get; set; }
 
 		public int InvalidAttemptsCount { get; set; }
-
 	}
 }
