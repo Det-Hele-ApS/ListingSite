@@ -53,6 +53,42 @@
 						</ul>
 					</div>
 				}
+
+				@if (!string.IsNullOrEmpty(ViewBag.Type) && !string.IsNullOrEmpty(ViewBag.Service) && !string.IsNullOrEmpty(ViewBag.City))
+				{
+					<div class="widget categories">
+						<h5 class="sidebar-title">Cities</h5>
+						<ul>
+							@foreach (var city in ViewBag.Cities)
+							{
+								<li><a href="/eskorte/@ViewBag.Type/@ViewBag.Service/@city.Slug">@Html.Raw(city.Name)</a></li>
+							}
+						</ul>
+					</div>
+				}
+
+				@if (!string.IsNullOrEmpty(ViewBag.Type) && string.IsNullOrEmpty(ViewBag.Service) && !string.IsNullOrEmpty(ViewBag.City))
+				{
+					<div class="widget categories">
+						<h5 class="sidebar-title">Cities</h5>
+						<ul>
+							@foreach (var city in ViewBag.Cities)
+							{
+								<li><a href="/eskorte/@ViewBag.Type/@city.Slug">@Html.Raw(city.Name)</a></li>
+							}
+						</ul>
+					</div>
+
+					<div class="widget categories">
+						<h5 class="sidebar-title">Services</h5>
+						<ul>
+							@foreach (var service in ViewBag.Services)
+							{
+								<li><a href="/eskorte/@ViewBag.Type/@service.Slug">@Html.Raw(service.Name)</a></li>
+							}
+						</ul>
+					</div>
+				}
 			</div>
 		</div>
 	</div>
