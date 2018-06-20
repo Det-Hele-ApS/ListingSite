@@ -35,6 +35,46 @@ namespace ListingApp.BusinessComponents.Services
 				 })
 			 };
 
+		private static readonly Expression<Func<Escort, EscortModel>> ProfileSelector =
+			e =>
+			new EscortModel
+			{
+				Id = e.Id,
+				Name = e.Name,
+				Type = e.EscortType.Slug,
+				Description = e.Description,
+				PhoneNumber = e.Phone,
+				Features = e.EscortFeatures.ToDictionary(ef => ef.FeatureName, ef => ef.FeatureValue),
+				Images = e.Images.Select(i => new ImageModel
+				{
+					Path = i.Path,
+					SmallPath = i.SmallPath,
+					SortOrder = i.SortOrder
+				}).OrderBy(i => i.SortOrder).ToList(),
+				Services = e.EscortServices.Select(es => new ServiceModel
+				{
+					Id = es.Service.Id,
+					Name = es.Service.Name,
+					Description = es.Service.Description,
+					Slug = es.Service.Slug
+				}).ToList(),
+				Calendar = e.Calendar.Select(c => new CalendarModel
+				{
+					Date = c.Date,
+					City = new CityModel
+					{
+						Name = c.City.Name,
+						Slug = c.City.Slug,
+						Region = new RegionModel
+						{
+							Name = c.City.Region.Name,
+							Slug = c.City.Region.Slug
+						}
+					}
+				}).OrderBy(c => c.Date).ToList()
+			};
+
+
 		private readonly AppDbContext db;
 
 		private readonly IMapper mapper;
@@ -56,42 +96,15 @@ namespace ListingApp.BusinessComponents.Services
 		{
 			return await this.db.Escorts
 				.Where(e => e.ExternalId == id)
-				.Select(e => new EscortModel
-				{
-					Id = e.Id,
-					Name = e.Name,
-					Type = e.EscortType.Slug,
-					Description = e.Description,
-					PhoneNumber = e.Phone,
-					Features = e.EscortFeatures.ToDictionary(ef => ef.FeatureName, ef => ef.FeatureValue),
-					Images = e.Images.Select(i => new ImageModel
-					{
-						Path = i.Path,
-						SmallPath = i.SmallPath,
-						SortOrder = i.SortOrder
-					}).OrderBy(i => i.SortOrder).ToList(),
-					Services = e.EscortServices.Select(es => new ServiceModel
-					{
-						Id = es.Service.Id,
-						Name = es.Service.Name,
-						Description = es.Service.Description,
-						Slug = es.Service.Slug
-					}).ToList(),
-					Calendar = e.Calendar.Select(c => new CalendarModel
-					{
-						Date = c.Date,
-						City = new CityModel
-						{
-							Name = c.City.Name,
-							Slug = c.City.Slug,
-							Region = new RegionModel
-							{
-								Name = c.City.Region.Name,
-								Slug = c.City.Region.Slug
-							}
-						}
-					}).OrderBy(c => c.Date).ToList()
-				})
+				.Select(ProfileSelector)
+				.FirstOrDefaultAsync();
+		}
+
+		public async Task<EscortModel> GetBySlug(string slug)
+		{
+			return await this.db.Escorts
+				.Where(e => string.Compare(e.Slug, slug, StringComparison.OrdinalIgnoreCase) == 0)
+				.Select(ProfileSelector)
 				.FirstOrDefaultAsync();
 		}
 

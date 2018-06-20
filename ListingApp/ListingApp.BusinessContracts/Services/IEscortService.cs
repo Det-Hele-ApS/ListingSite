@@ -10,6 +10,8 @@ namespace ListingApp.BusinessContracts.Services
 
 		Task<EscortModel> GetById(int id);
 
+		Task<EscortModel> GetBySlug(string slug);
+
 		Task<IList<ListingEscortModel>> GetByEscortType(string escortType);
 
 		Task<IList<ListingEscortModel>> GetByServiceName(string serviceName);

@@ -283,6 +283,7 @@ namespace ListingApp.Crawling.Core.Parsers
 
 			var urlParts = url.Split('/');
 			var escortExternalId = int.Parse(urlParts[urlParts.Length - 2]);
+			var escortExternalSlug = urlParts.Last();
 
 			var escortTypeId = await this.dbContext.EscortTypes
 				.Where(et => et.ExternalId == categoryId)
@@ -322,6 +323,7 @@ namespace ListingApp.Crawling.Core.Parsers
 			escort.ExternalId = escortExternalId;
 			escort.EscortTypeId = escortTypeId;
 			escort.Phone = phoneNumber;
+			escort.Slug = $"{escortExternalSlug}-{escortExternalId}";
 
 			if (isNewEscort)
 			{

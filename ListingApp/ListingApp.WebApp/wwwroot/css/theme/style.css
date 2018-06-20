@@ -7714,3 +7714,10 @@ body.off-canvas-sidebar-open {
 		margin-top: 44px;
 	}
 }
+
+
+ul.dropdown-menu {
+	max-height: calc(100vh/2);
+	overflow-y: scroll;
+	overflow-x: hidden;
+}

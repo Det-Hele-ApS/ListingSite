@@ -78,7 +78,7 @@
 										{
 											<li>
 												<a class="dropdown-item" href="eskorte/@service.Slug">
-													@service.Name
+													@Html.Raw(service.Name)
 												</a>
 											</li>
 										}
@@ -93,7 +93,7 @@
 										{
 											<li>
 												<a class="dropdown-item" href="eskorte/@city.Slug">
-													@city.Name
+													@Html.Raw(city.Name)
 												</a>
 											</li>
 										}
@@ -140,12 +140,41 @@
 				</aside>
 				<aside class="canvas-widget">
 					<ul class="menu">
-						<li class="menu-item menu-item-has-children"><a href="#">Home</a></li>
-						<li class="menu-item"><a href="#">Properties List</a></li>
-						<li class="menu-item"><a href="#">Property Detail</a></li>
-						<li class="menu-item"><a href="#">Blog</a></li>
-						<li class="menu-item"><a href="#">About  US</a></li>
-						<li class="menu-item"><a href="#">Contact US</a></li>
+						<li class="menu-item"><a href="/">Home</a></li>
+						<li class="menu-item"><a href="/eskorte">Explore Escorts</a></li>
+						<li class="menu-item menu-item-has-children">
+							<a href="javascript:void(0);">
+								Category
+							</a>
+							<ul class="menu">
+								@foreach (var category in escortTypes)
+								{
+									<li class="menu-item"><a href="/eskorte/@category.Slug">@category.Name</a></li>
+								}
+							</ul>
+						</li>
+						<li class="menu-item menu-item-has-children">
+							<a href="javascript:void(0);">
+								Service
+							</a>
+							<ul class="menu">
+								@foreach (var service in services)
+								{
+									<li class="menu-item"><a href="/eskorte/@service.Slug">@Html.Raw(service.Name)</a></li>
+								}
+							</ul>
+						</li>
+						<li class="menu-item menu-item-has-children">
+							<a href="javascript:void(0);">
+								City
+							</a>
+							<ul class="menu">
+								@foreach (var city in cities)
+								{
+									<li class="menu-item"><a href="/eskorte/@city.Slug">@Html.Raw(city.Name)</a></li>
+								}
+							</ul>
+						</li>
 					</ul>
 				</aside>
 			</div>
