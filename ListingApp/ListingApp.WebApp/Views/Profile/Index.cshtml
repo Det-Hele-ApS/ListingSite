@@ -178,7 +178,7 @@
 									<div class="col-md-9 col-sm-12">
 										@foreach(var el in cal.Select(c => c.City)
 											.GroupBy(c => c.Region.Name)
-											.Select(x => $"{x.Key}: {string.Join(", ", x.Select(xx => xx.Name))}"))
+											.Select(x => $"<storng>{x.Key}</strong>: {string.Join(", ", x.Select(xx => xx.Name))}"))
 										{
 											@Html.Raw(el) <br />
 										}
