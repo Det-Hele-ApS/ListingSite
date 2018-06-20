@@ -49,6 +49,8 @@ namespace ListingApp.Crawling.Core.Parsers
 
 		private readonly HttpClient client;
 
+		private readonly Random random;
+
 		public RealEscortParser(Config.Config config)
 		{
 			this.captchaSolver = new ReCaptchaSolver(config.DeathByCaptchaConfig);
@@ -58,12 +60,12 @@ namespace ListingApp.Crawling.Core.Parsers
 			optionsBuilder.UseSqlServer(config.ConnectionString);
 			this.dbContext = new AppDbContext(optionsBuilder.Options);
 
-			var random = new Random(this.GetCurrentUnixTime());
+			this.random = new Random(this.GetCurrentUnixTime());
 			var proxyIndex = random.Next(0, config.Proxies.Length - 1);
 			var proxy = config.Proxies[proxyIndex];
 
 			this.skipCityParsing = config.SkipCityParsing;
-			this.requestCooldown = random.Next(1000, config.RequestCooldown);
+			this.requestCooldown = config.RequestCooldown; // random.Next(1000, this.requestCooldown);
 			this.proxyData = $"{proxy.Schema}://{proxy.Username}:{proxy.Password}@{proxy.Host}:{proxy.Port}";
 			this.storageConnectionString = config.StorageConnectionString;
 
@@ -123,7 +125,7 @@ namespace ListingApp.Crawling.Core.Parsers
 
 						if (response.StatusCode == HttpStatusCode.Forbidden)
 						{
-							Thread.Sleep(this.requestCooldown);
+							this.WaitCooldown();
 							await this.Solve(html, ApiUrl);
 						}
 						else if(response.StatusCode == HttpStatusCode.NotFound)
@@ -140,7 +142,7 @@ namespace ListingApp.Crawling.Core.Parsers
 								var relUrl = link.GetAttribute("href");
 								var girlUrl = $"{BaseUrl}/{relUrl}";
 
-								Thread.Sleep(this.requestCooldown);
+								this.WaitCooldown();
 
 								var girlResponse = await this.SendRequest(girlUrl, HttpMethod.Get, pageUrl);
 								if(girlResponse.StatusCode == HttpStatusCode.OK)
@@ -159,7 +161,7 @@ namespace ListingApp.Crawling.Core.Parsers
 							}
 						}
 
-						Thread.Sleep(this.requestCooldown);
+						this.WaitCooldown();
 					}
 				}
 			}
@@ -204,10 +206,10 @@ namespace ListingApp.Crawling.Core.Parsers
 			if(solve && response.StatusCode == HttpStatusCode.Forbidden)
 			{
 				Console.WriteLine("Forbidden.");
-				Thread.Sleep(this.requestCooldown);
+				this.WaitCooldown();
 				await this.Solve(await response.Content.ReadAsStringAsync(), url);
 				Console.WriteLine("Solved. Resending.");
-				Thread.Sleep(this.requestCooldown);
+				this.WaitCooldown();
 				return await this.SendRequest(url, method, referer, bodyContent);
 			}
 
@@ -627,6 +629,13 @@ namespace ListingApp.Crawling.Core.Parsers
 			}
 
 			await this.dbContext.SaveChangesAsync();
+		}
+
+		private void WaitCooldown()
+		{
+			var cooldown = this.random.Next(1000, this.requestCooldown);
+			Console.WriteLine("Cooldown: {0}", cooldown);
+			Thread.Sleep(cooldown);
 		}
     }
 }

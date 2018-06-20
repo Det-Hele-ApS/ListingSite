@@ -19,9 +19,10 @@ namespace ListingApp.BusinessComponents.Services
 			e =>
 			 new ListingEscortModel
 			 {
-				 ExternalId = e.ExternalId,
+				 ExternalId = e.ExternalId.ToString(),
 				 EscortType = e.EscortType.ExternalName,
 				 Name = e.Name,
+				 Slug = e.Slug,
 				 MainImage = new ImageModel
 				 {
 					 Path = e.Images.FirstOrDefault(i => i.IsPrimary || i.SortOrder == e.Images.Min(im => im.SortOrder)).Path,
