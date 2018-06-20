@@ -182,7 +182,7 @@
 												<strong>@Html.Raw(el.Key):</strong>
 												@foreach (var city in el)
 												{
-													<a href="/eskorte/@city.Slug">@city.Name</a>
+													<a href="/eskorte/@city.Slug">@Html.Raw(city.Name)</a>
 													<span>,&nbsp;</span>
 												}
 											</div>
