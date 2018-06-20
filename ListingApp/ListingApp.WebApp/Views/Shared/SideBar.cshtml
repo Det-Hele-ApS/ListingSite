@@ -1,0 +1,59 @@
+﻿<div class="sidebar mbl">
+
+	<!-- Search area start -->
+	<div class="widget search-area d-none d-xl-block d-lg-block">
+		<h5 class="sidebar-title">Navigation</h5>
+		<div class="search-area-inner">
+			<div class="search-contents ">
+				@if (string.IsNullOrEmpty(ViewBag.Type) && string.IsNullOrEmpty(ViewBag.Service) && string.IsNullOrEmpty(ViewBag.City))
+				{
+					<div class="widget categories">
+						<h5 class="sidebar-title">Categories</h5>
+						<ul>
+							@foreach (var type in ViewBag.Types)
+							{
+								<li><a href="/eskorte/@type.Slug">@type.Name</a></li>
+							}
+						</ul>
+					</div>
+				}
+
+				@if (!string.IsNullOrEmpty(ViewBag.Type) && string.IsNullOrEmpty(ViewBag.Service) && string.IsNullOrEmpty(ViewBag.City))
+				{
+					<div class="widget categories">
+						<h5 class="sidebar-title">Services</h5>
+						<ul>
+							@foreach (var service in ViewBag.Services)
+							{
+								<li><a href="/eskorte/@ViewBag.Type/@service.Slug">@Html.Raw(service.Name)</a></li>
+							}
+						</ul>
+					</div>
+
+					<div class="widget categories">
+						<h5 class="sidebar-title">Cities</h5>
+						<ul>
+							@foreach (var city in ViewBag.Cities)
+							{
+								<li><a href="/eskorte/@ViewBag.Type/@city.Slug">@Html.Raw(city.Name)</a></li>
+							}
+						</ul>
+					</div>
+				}
+
+				@if (!string.IsNullOrEmpty(ViewBag.Type) && !string.IsNullOrEmpty(ViewBag.Service) && string.IsNullOrEmpty(ViewBag.City))
+				{
+					<div class="widget categories">
+						<h5 class="sidebar-title">Cities</h5>
+						<ul>
+							@foreach (var city in ViewBag.Cities)
+							{
+								<li><a href="/eskorte/@ViewBag.Type/@ViewBag.Service/@city.Slug">@Html.Raw(city.Name)</a></li>
+							}
+						</ul>
+					</div>
+				}
+			</div>
+		</div>
+	</div>
+</div>

@@ -20,5 +20,7 @@ namespace ListingApp.BusinessEntities.Models.Escort
 		public Dictionary<string, string> Features { get; set; }
 
 		public IList<ServiceModel> Services { get; set; }
+
+		public IList<CalendarModel> Calendar { get; set; }
     }
 }

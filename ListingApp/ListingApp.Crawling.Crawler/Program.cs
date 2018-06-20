@@ -12,6 +12,7 @@ namespace ListingApp.Crawling.Crawler
 				ConnectionString = "Server=tcp:finneskorte-prod.database.windows.net,1433;Initial Catalog=finneskorte-prod;Persist Security Info=False;User ID=Escortuser;Password=495€hj#13h?()€32;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;",
 				StorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=finneskorteprodstorage;AccountKey=7netpM+zWW6/6TnHL45p2uTHHm9+fQbVgIiTn7XaeJhUVieLZZ8a1PI0mrabaCJXBKhruXo+/0rw1S6MIL5ZCQ==;EndpointSuffix=core.windows.net",
 				RequestCooldown = 7000,
+				SkipCityParsing = true,
 				DeathByCaptchaConfig = new DeathByCaptchaConfig
 				{
 					InvalidAttemptsCount = 8,

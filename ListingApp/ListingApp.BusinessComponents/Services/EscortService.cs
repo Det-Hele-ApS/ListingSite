@@ -62,6 +62,7 @@ namespace ListingApp.BusinessComponents.Services
 					Name = e.Name,
 					Type = e.EscortType.Slug,
 					Description = e.Description,
+					PhoneNumber = e.Phone,
 					Features = e.EscortFeatures.ToDictionary(ef => ef.FeatureName, ef => ef.FeatureValue),
 					Images = e.Images.Select(i => new ImageModel
 					{
@@ -75,7 +76,21 @@ namespace ListingApp.BusinessComponents.Services
 						Name = es.Service.Name,
 						Description = es.Service.Description,
 						Slug = es.Service.Slug
-					}).ToList()
+					}).ToList(),
+					Calendar = e.Calendar.Select(c => new CalendarModel
+					{
+						Date = c.Date,
+						City = new CityModel
+						{
+							Name = c.City.Name,
+							Slug = c.City.Slug,
+							Region = new RegionModel
+							{
+								Name = c.City.Region.Name,
+								Slug = c.City.Region.Slug
+							}
+						}
+					}).OrderBy(c => c.Date).ToList()
 				})
 				.FirstOrDefaultAsync();
 		}

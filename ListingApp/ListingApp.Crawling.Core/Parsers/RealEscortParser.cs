@@ -33,6 +33,8 @@ namespace ListingApp.Crawling.Core.Parsers
 		// Time in milliseconds we wait between requests.
 		private readonly int requestCooldown;
 
+		private readonly bool skipCityParsing;
+
 		private readonly string proxyData;
 
 		private readonly string storageConnectionString;
@@ -60,6 +62,7 @@ namespace ListingApp.Crawling.Core.Parsers
 			var proxyIndex = random.Next(0, config.Proxies.Length - 1);
 			var proxy = config.Proxies[proxyIndex];
 
+			this.skipCityParsing = config.SkipCityParsing;
 			this.requestCooldown = random.Next(1000, config.RequestCooldown);
 			this.proxyData = $"{proxy.Schema}://{proxy.Username}:{proxy.Password}@{proxy.Host}:{proxy.Port}";
 			this.storageConnectionString = config.StorageConnectionString;
@@ -95,7 +98,11 @@ namespace ListingApp.Crawling.Core.Parsers
 				}).ToListAsync();
 
 			var regions = await this.dbContext.Regions.ToListAsync();
-			await this.ParseCities(regions);			
+
+			if (!this.skipCityParsing)
+			{
+				await this.ParseCities(regions);
+			}
 
 			foreach(var category in categories)
 			{
@@ -326,6 +333,7 @@ namespace ListingApp.Crawling.Core.Parsers
 			await this.DownloadImages(cq, escort.Id, url);
 			await this.ParseFeatures(infoBlock, escort.Id);
 			await this.ParseServices(cq, escort.Id);
+			await this.ParseCalendar(cq.Find("div.travelplan div.day div.location.dash-list"), escort.Id);
 
 			await this.dbContext.SaveChangesAsync();
 		}
@@ -528,6 +536,95 @@ namespace ListingApp.Crawling.Core.Parsers
 
 				await this.dbContext.SaveChangesAsync();
 			}
+		}
+
+		private async Task ParseCalendar(CQ days, Guid escortId)
+		{
+			var index = 0;
+			var firstDate = DateTime.Now;
+
+			foreach(var day in days)
+			{
+				var date = firstDate.AddDays(index++);
+				foreach(var span in day.ChildNodes)
+				{
+					if(span.NodeName == "SPAN")
+					{
+						var regionId = 0;
+						var regionName = string.Empty;
+						var cities = string.Empty;
+						var wholeRegion = false;
+
+						foreach (var spanContent in span.ChildNodes)
+						{
+							if(spanContent.NodeName == "#text" && string.IsNullOrWhiteSpace(spanContent.NodeValue))
+							{
+								continue;
+							}
+
+							if (spanContent.NodeName == "#text")
+							{
+								if(!wholeRegion && !string.IsNullOrEmpty(regionName))
+								{
+									cities = spanContent.NodeValue.Trim();
+								}
+							}
+
+							if(spanContent.NodeName == "A")
+							{
+								var href = spanContent.GetAttribute("href");
+								if (href.StartsWith("/modals/cities"))
+								{
+									wholeRegion = true;
+									regionId = int.Parse(href.Split('/').Last());
+								}
+								else
+								{
+									regionName = spanContent.InnerText.Trim(':');
+								}
+							}
+						}
+
+						IQueryable<Calendar> calendarRows;
+						if (wholeRegion)
+						{
+							calendarRows = this.dbContext.Cities
+								.Where(c => c.Region.ExternalId == regionId)
+								.Select(c => new Calendar
+								{
+									CityId = c.Id,
+									EscortId = escortId,
+									Date = date
+								});
+						}
+						else
+						{
+							var cityNames = cities.Split(',').Select(c => c.Trim());
+							calendarRows = this.dbContext.Cities
+								.Where(c => cityNames.Contains(c.Name))
+								.Select(c => new Calendar
+								{
+									CityId = c.Id,
+									EscortId = escortId,
+									Date = date
+								});
+						}
+
+						foreach(var calendar in await calendarRows.ToListAsync())
+						{
+							if(!await this.dbContext.Calendar.AnyAsync(c => 
+								c.CityId == calendar.CityId
+								&& c.EscortId == calendar.EscortId
+								&& c.Date == calendar.Date))
+							{
+								await this.dbContext.AddAsync(calendar);
+							}
+						}
+					}
+				}
+			}
+
+			await this.dbContext.SaveChangesAsync();
 		}
     }
 }

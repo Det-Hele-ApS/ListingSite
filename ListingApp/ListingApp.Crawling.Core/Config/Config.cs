@@ -10,6 +10,8 @@
 
 		public int RequestCooldown { get; set; }
 
+		public bool SkipCityParsing { get; set; }
+
 		public ProxyConfig[] Proxies { get; set; }
     }
 }

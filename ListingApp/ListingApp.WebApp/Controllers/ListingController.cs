@@ -44,6 +44,8 @@ namespace ListingApp.WebApp.Controllers
 			var type = await this.GetRouteParam(first, second, third, RouteParams.Type);
 			var service = await this.GetRouteParam(first, second, third, RouteParams.Service);
 			this.ViewBag.City = await this.GetRouteParam(first, second, third, RouteParams.City);
+			this.ViewBag.Type = type;
+			this.ViewBag.Service = service;
 
 			IList<ListingEscortModel> model;
 
