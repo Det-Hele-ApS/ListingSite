@@ -176,12 +176,17 @@
 								{
 									<div class="col-md-3 col-sm-12">@cal.Key.ToShortDateString()</div>
 									<div class="col-md-9 col-sm-12">
-										@foreach(var el in cal.Select(c => c.City)
-											.GroupBy(c => c.Region.Name)
-											.Select(x => 
-												$"<storng>{x.Key}:</strong> {string.Join(", ", x.Select(xx => $"<a href='/eskorte/{xx.Slug}'>{xx.Name}</a>"))}"))
+										@foreach (var el in cal.Select(c => c.City).GroupBy(c => c.Region.Name))
 										{
-											@Html.Raw(el) <br />
+											<div class="region">
+												<strong>@Html.Raw(el.Key):</strong>
+												@foreach (var city in el)
+												{
+													<a href="/eskorte/@city.Slug">@city.Name</a>
+													<span>,&nbsp;</span>
+												}
+											</div>
+											<br /><hr />
 										}
 									</div>
 								}
