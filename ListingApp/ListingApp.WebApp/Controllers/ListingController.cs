@@ -11,6 +11,8 @@ namespace ListingApp.WebApp.Controllers
 {
 	public class ListingController : Controller
     {
+		private const int PageSize = 20;
+
 		private readonly IEscortTypeService escortTypeService;
 
 		private readonly IServiceService serviceService;
@@ -34,7 +36,7 @@ namespace ListingApp.WebApp.Controllers
 			this.cityService = cityService;
 		}
 
-		public async Task<IActionResult> Index(string first, string second, string third)
+		public async Task<IActionResult> Index(string first, string second, string third, [FromQuery]int page = 1)
 		{
 			this.ViewBag.Types = await this.escortTypeService.GetAll();
 			this.ViewBag.Services = await this.serviceService.GetAll();
@@ -66,7 +68,14 @@ namespace ListingApp.WebApp.Controllers
 				model = await this.escortService.GetByEscortTypeAndService(type, service);
 			}
 
-			return this.View(model.Take(20).ToList());
+			var pageModel = new ListingPageModel
+			{
+				CurrentPage = page,
+				TotalPages = model.Count / PageSize + (model.Count % PageSize > 0 ? 1 : 0),
+				Escorts = model.Skip((page - 1) * PageSize).Take(PageSize).ToList()
+			};
+
+			return this.View(pageModel);
 		}
 
 		private async Task<string> GetRouteParam(string first, string second, string third, RouteParams paramType)

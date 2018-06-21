@@ -160,8 +160,6 @@ namespace ListingApp.Crawling.Core.Parsers
 								}
 							}
 						}
-
-						this.WaitCooldown();
 					}
 				}
 			}
