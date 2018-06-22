@@ -12,6 +12,10 @@
 
 		public bool SkipCityParsing { get; set; }
 
+		public bool SkipExisting { get; set; }
+
+		public bool SkipPhoneCaptchaSolving { get; set; }
+
 		public ProxyConfig[] Proxies { get; set; }
     }
 }

@@ -13,6 +13,8 @@ namespace ListingApp.Crawling.Crawler
 				StorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=finneskorteprodstorage;AccountKey=7netpM+zWW6/6TnHL45p2uTHHm9+fQbVgIiTn7XaeJhUVieLZZ8a1PI0mrabaCJXBKhruXo+/0rw1S6MIL5ZCQ==;EndpointSuffix=core.windows.net",
 				RequestCooldown = 3500,
 				SkipCityParsing = true,
+				SkipExisting = true,
+				SkipPhoneCaptchaSolving = true,
 				DeathByCaptchaConfig = new DeathByCaptchaConfig
 				{
 					InvalidAttemptsCount = 8,

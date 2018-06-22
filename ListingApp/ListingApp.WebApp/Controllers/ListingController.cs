@@ -45,27 +45,44 @@ namespace ListingApp.WebApp.Controllers
 
 			var type = await this.GetRouteParam(first, second, third, RouteParams.Type);
 			var service = await this.GetRouteParam(first, second, third, RouteParams.Service);
-			this.ViewBag.City = await this.GetRouteParam(first, second, third, RouteParams.City);
+			var city = await this.GetRouteParam(first, second, third, RouteParams.City);
+			this.ViewBag.City = city;
 			this.ViewBag.Type = type;
 			this.ViewBag.Service = service;
 
 			IList<ListingEscortModel> model;
 
-			if(string.IsNullOrEmpty(type) && string.IsNullOrEmpty(service))
+			if(string.IsNullOrEmpty(type) && string.IsNullOrEmpty(service) && string.IsNullOrEmpty(city))
 			{
 				model = await this.escortService.GetAll();
 			}
-			else if(string.IsNullOrEmpty(type))
+			else if(string.IsNullOrEmpty(type) && string.IsNullOrEmpty(city))
 			{
 				model = await this.escortService.GetByServiceName(service);
 			}
-			else if(string.IsNullOrEmpty(service))
+			else if(string.IsNullOrEmpty(service) && string.IsNullOrEmpty(city))
 			{
 				model = await this.escortService.GetByEscortType(type);
 			}
-			else
+			else if(string.IsNullOrEmpty(type) && string.IsNullOrEmpty(service))
+			{
+				model = await this.escortService.GetByCity(city);
+			}
+			else if(string.IsNullOrEmpty(city))
 			{
 				model = await this.escortService.GetByEscortTypeAndService(type, service);
+			}
+			else if(string.IsNullOrEmpty(service))
+			{
+				model = await this.escortService.GetByEscortTypeAndCity(type, city);
+			}
+			else if(string.IsNullOrEmpty(type))
+			{
+				model = await this.escortService.GetByServiceAndCity(service, city);
+			}
+			else
+			{
+				model = await this.escortService.GetByAllFilters(type, service, city);
 			}
 
 			var pageModel = new ListingPageModel

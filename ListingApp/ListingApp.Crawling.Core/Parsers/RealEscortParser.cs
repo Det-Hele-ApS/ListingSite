@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 namespace ListingApp.Crawling.Core.Parsers
 {
 	public class RealEscortParser
-    {
+	{
 		private const string Host = "www.realescort.eu";
 
 		private const string BaseUrl = "http://www.realescort.eu";
@@ -34,6 +34,10 @@ namespace ListingApp.Crawling.Core.Parsers
 		private readonly int requestCooldown;
 
 		private readonly bool skipCityParsing;
+
+		private readonly bool skipExisting;
+
+		private readonly bool skipPhoneCaptchaSolving;
 
 		private readonly string proxyData;
 
@@ -51,6 +55,8 @@ namespace ListingApp.Crawling.Core.Parsers
 
 		private readonly Random random;
 
+		private string phoneCaptchaAnswer = string.Empty;
+
 		public RealEscortParser(Config.Config config)
 		{
 			this.captchaSolver = new ReCaptchaSolver(config.DeathByCaptchaConfig);
@@ -65,6 +71,8 @@ namespace ListingApp.Crawling.Core.Parsers
 			var proxy = config.Proxies[proxyIndex];
 
 			this.skipCityParsing = config.SkipCityParsing;
+			this.skipExisting = config.SkipExisting;
+			this.skipPhoneCaptchaSolving = config.SkipPhoneCaptchaSolving;
 			this.requestCooldown = config.RequestCooldown; // random.Next(1000, this.requestCooldown);
 			this.proxyData = $"{proxy.Schema}://{proxy.Username}:{proxy.Password}@{proxy.Host}:{proxy.Port}";
 			this.storageConnectionString = config.StorageConnectionString;
@@ -80,7 +88,7 @@ namespace ListingApp.Crawling.Core.Parsers
 				{
 					Address = new Uri($"{proxy.Schema}://{proxy.Host}:{proxy.Port}"),
 					UseDefaultCredentials = false,
-					Credentials = new NetworkCredential(proxy.Username, proxy.Password)					
+					Credentials = new NetworkCredential(proxy.Username, proxy.Password)
 				}
 			};
 
@@ -106,9 +114,9 @@ namespace ListingApp.Crawling.Core.Parsers
 				await this.ParseCities(regions);
 			}
 
-			foreach(var category in categories)
+			foreach (var category in categories)
 			{
-				foreach(var region in regions)
+				foreach (var region in regions)
 				{
 					var pageUrl = string.Format(RegionTemplate, BaseUrl, category.Slug, region.ExternalId, region.Slug);
 					var pageNumber = 1;
@@ -128,7 +136,7 @@ namespace ListingApp.Crawling.Core.Parsers
 							this.WaitCooldown();
 							await this.Solve(html, ApiUrl);
 						}
-						else if(response.StatusCode == HttpStatusCode.NotFound)
+						else if (response.StatusCode == HttpStatusCode.NotFound)
 						{
 							break;
 						}
@@ -137,7 +145,7 @@ namespace ListingApp.Crawling.Core.Parsers
 							pageNumber++;
 							var cq = CQ.Create(html);
 							var links = cq.Find("a.img");
-							foreach(var link in links)
+							foreach (var link in links)
 							{
 								var relUrl = link.GetAttribute("href");
 								var girlUrl = $"{BaseUrl}/{relUrl}";
@@ -145,7 +153,7 @@ namespace ListingApp.Crawling.Core.Parsers
 								this.WaitCooldown();
 
 								var girlResponse = await this.SendRequest(girlUrl, HttpMethod.Get, pageUrl);
-								if(girlResponse.StatusCode == HttpStatusCode.OK)
+								if (girlResponse.StatusCode == HttpStatusCode.OK)
 								{
 									try
 									{
@@ -192,7 +200,7 @@ namespace ListingApp.Crawling.Core.Parsers
 
 			this.AddHeaders(request, referer);
 
-			if(!string.IsNullOrEmpty(bodyContent))
+			if (!string.IsNullOrEmpty(bodyContent))
 			{
 				request.Content = new StringContent(bodyContent, Encoding.UTF8, "application/json");
 			}
@@ -201,7 +209,7 @@ namespace ListingApp.Crawling.Core.Parsers
 
 			Console.WriteLine("Response from {0} - Status Code = {1}", url, response.StatusCode);
 
-			if(solve && response.StatusCode == HttpStatusCode.Forbidden)
+			if (solve && response.StatusCode == HttpStatusCode.Forbidden)
 			{
 				Console.WriteLine("Forbidden.");
 				this.WaitCooldown();
@@ -211,9 +219,9 @@ namespace ListingApp.Crawling.Core.Parsers
 				return await this.SendRequest(url, method, referer, bodyContent);
 			}
 
-			if(!solve && response.IsSuccessStatusCode)
+			if (!solve && response.IsSuccessStatusCode)
 			{
-				
+
 			}
 
 			return response;
@@ -292,37 +300,73 @@ namespace ListingApp.Crawling.Core.Parsers
 			var name = infoBlock.Find("h2").First().Text();
 			var description = cq.Find("div.description div.content p").First().Text();
 
-			var phoneH3 = cq.Find("div.contact div.content div.row div.phone h3");
-			var phoneNumber = phoneH3.Text().Substring(5, 13);
-
-			var phoneLink = phoneH3.Find("a");
-			var phoneUrl = phoneLink.Attr("href");
-
-			if (phoneLink != null && !string.IsNullOrEmpty(phoneUrl))
-			{
-				Console.WriteLine("TODO: Solve phone number captcha.");
-				/*
-				var phoneRespone = await this.SendRequest($"{BaseUrl}/{phoneUrl}/data", HttpMethod.Get, url);
-				phoneNumber = await phoneRespone.Content.ReadAsStringAsync();
-				*/
-			}
-
 			var isNewEscort = false;
 			var escort = await this.dbContext.Escorts
 				.Where(e => e.ExternalId == escortExternalId)
 				.FirstOrDefaultAsync();
 
-			if(escort == null)
+			if (escort == null)
 			{
 				escort = new Escort();
 				isNewEscort = true;
+			}
+
+			if(this.skipExisting && !isNewEscort)
+			{
+				Console.WriteLine("Already exists. Skipping...");
+				return;
+			}
+
+			if (isNewEscort || string.IsNullOrEmpty(escort.Phone) || escort.Phone.Contains("*"))
+			{
+				var phoneH3 = cq.Find("div.contact div.content div.row div.phone h3");
+				var phoneNumber = phoneH3.Text().Substring(5, 13);
+
+				var phoneLink = phoneH3.Find("a");
+				var phoneUrl = phoneLink.Attr("href");
+
+				if (!this.skipPhoneCaptchaSolving && phoneLink != null && !string.IsNullOrEmpty(phoneUrl))
+				{
+					var phoneModalRespone = await this.SendRequest($"{BaseUrl}/{phoneUrl}", HttpMethod.Get, url);
+					var phoneModal = await phoneModalRespone.Content.ReadAsStringAsync();
+
+					var div = CQ.Create(phoneModal).Find("div.verify div").FirstElement();
+					var captchaKey = div.GetAttribute("recaptcha");
+
+					Console.WriteLine("Solving captcha: {0}", captchaKey);
+					var captchaAnswer = this.captchaSolver.Solve(captchaKey, $"{BaseUrl}/{phoneUrl}", this.proxyData);
+
+					var response = await this.SendRequest($"{BaseUrl}/{phoneUrl}/data", HttpMethod.Post, url, JsonConvert.SerializeObject(new
+					{
+						recaptcha = captchaAnswer
+					}).ToString());
+
+					var json = await response.Content.ReadAsStringAsync();
+					var phoneData = JsonConvert.DeserializeObject<PhoneData>(json);
+
+					if (!string.IsNullOrEmpty(phoneData.Phone1))
+					{
+						phoneNumber = phoneData.Phone1;
+
+						Console.WriteLine("Hidden phone number: {0}", phoneNumber);
+					}
+					else
+					{
+						Console.WriteLine("Invalid captcha.");
+						if (!string.IsNullOrEmpty(phoneData.Error))
+						{
+							this.phoneCaptchaAnswer = string.Empty;
+						}
+					}
+				}
+
+				escort.Phone = phoneNumber;
 			}
 
 			escort.Name = name;
 			escort.Description = description;
 			escort.ExternalId = escortExternalId;
 			escort.EscortTypeId = escortTypeId;
-			escort.Phone = phoneNumber;
 			escort.Slug = $"{escortExternalSlug}-{escortExternalId}";
 
 			if (isNewEscort)
@@ -379,38 +423,45 @@ namespace ListingApp.Crawling.Core.Parsers
 		{
 			try
 			{
+				var existingImages = await this.dbContext.Images.Where(i => i.EscortId == escortId).ToListAsync();
+
 				var images = new List<Image>();
 				var imagesDiv = cq.Find("div.images");
 				var primaryImageLink = imagesDiv.Find("div.img a");
 				var otherImageLinks = imagesDiv.Find("div.other div.xs-25 a");
 
 				var imageOrder = 0;
-				images.Add(new Image
-				{
-					IsPrimary = true,
-					ExternalLink = primaryImageLink.Attr("href"),
-					SmallPath = primaryImageLink.Find("img").Attr("src"),
-					SortOrder = imageOrder++
-				});
+				var primaryExternalLink = primaryImageLink.Attr("href");
 
-				foreach (var other in otherImageLinks)
+				if (!existingImages.Any(ei => ei.ExternalLink == primaryExternalLink))
 				{
 					images.Add(new Image
 					{
-						IsPrimary = false,
-						ExternalLink = other.GetAttribute("href"),
-						SmallPath = other.FirstChild.GetAttribute("src"),
+						IsPrimary = true,
+						ExternalLink = primaryExternalLink,
+						SmallPath = primaryImageLink.Find("img").Attr("src"),
 						SortOrder = imageOrder++
 					});
 				}
 
+				foreach (var other in otherImageLinks)
+				{
+					var externalLink = other.GetAttribute("href");
+
+					if (!existingImages.Any(ei => ei.ExternalLink == externalLink))
+					{
+						images.Add(new Image
+						{
+							IsPrimary = false,
+							ExternalLink = externalLink,
+							SmallPath = other.FirstChild.GetAttribute("src"),
+							SortOrder = imageOrder++
+						});
+					}
+				}
+
 				foreach (var image in images)
 				{
-					if (await this.dbContext.Images.AnyAsync(i => i.ExternalLink == image.ExternalLink))
-					{
-						continue;
-					}
-
 					var imageName = image.ExternalLink
 						.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
 						.Last();
@@ -451,6 +502,8 @@ namespace ListingApp.Crawling.Core.Parsers
 
 		private async Task ParseFeatures(CQ infoBlock, Guid escortId)
 		{
+			var existingFeatures = await this.dbContext.EscortFeatures.Where(f => f.EscortId == escortId).ToListAsync();
+
 			var features = new List<EscortFeature>();
 			var list = infoBlock.Find("div.list div.row");
 			var featureOrder = 0;
@@ -464,7 +517,7 @@ namespace ListingApp.Crawling.Core.Parsers
 					if (!string.IsNullOrEmpty(value)
 						&& !string.IsNullOrEmpty(title)
 						&& !features.Any(f => f.FeatureName == title)
-						&& !await this.dbContext.EscortFeatures.AnyAsync(f => f.FeatureName == title && f.EscortId == escortId))
+						&& !existingFeatures.Any(f => f.FeatureName == title))
 					{
 						features.Add(new EscortFeature
 						{
@@ -486,6 +539,8 @@ namespace ListingApp.Crawling.Core.Parsers
 
 		private async Task ParseServices(CQ cq, Guid escortId)
 		{
+			var existingServices = await this.dbContext.Services.ToListAsync();
+
 			var services = new List<Service>();
 			var servicesList = cq.Find("div.services.gives div.content div.dash-list span a");
 			foreach (var serviceLink in servicesList)
@@ -507,7 +562,7 @@ namespace ListingApp.Crawling.Core.Parsers
 						Slug = slug
 					};
 
-					if (!await this.dbContext.Services.AnyAsync(s => s.ExternalId == externalId))
+					if (!existingServices.Any(s => s.ExternalId == externalId))
 					{
 						await this.dbContext.Services.AddAsync(service);
 					}
@@ -542,15 +597,17 @@ namespace ListingApp.Crawling.Core.Parsers
 
 		private async Task ParseCalendar(CQ days, Guid escortId)
 		{
+			var existingCalendar = await this.dbContext.Calendar.Where(c => c.EscortId == escortId).ToListAsync();
+
 			var index = 0;
 			var firstDate = DateTime.Now;
 
-			foreach(var day in days)
+			foreach (var day in days)
 			{
 				var date = firstDate.AddDays(index++);
-				foreach(var span in day.ChildNodes)
+				foreach (var span in day.ChildNodes)
 				{
-					if(span.NodeName == "SPAN")
+					if (span.NodeName == "SPAN")
 					{
 						var regionId = 0;
 						var regionName = string.Empty;
@@ -559,20 +616,20 @@ namespace ListingApp.Crawling.Core.Parsers
 
 						foreach (var spanContent in span.ChildNodes)
 						{
-							if(spanContent.NodeName == "#text" && string.IsNullOrWhiteSpace(spanContent.NodeValue))
+							if (spanContent.NodeName == "#text" && string.IsNullOrWhiteSpace(spanContent.NodeValue))
 							{
 								continue;
 							}
 
 							if (spanContent.NodeName == "#text")
 							{
-								if(!wholeRegion && !string.IsNullOrEmpty(regionName))
+								if (!wholeRegion && !string.IsNullOrEmpty(regionName))
 								{
 									cities = spanContent.NodeValue.Trim();
 								}
 							}
 
-							if(spanContent.NodeName == "A")
+							if (spanContent.NodeName == "A")
 							{
 								var href = spanContent.GetAttribute("href");
 								if (href.StartsWith("/modals/cities"))
@@ -612,12 +669,11 @@ namespace ListingApp.Crawling.Core.Parsers
 								});
 						}
 
-						foreach(var calendar in await calendarRows.ToListAsync())
+						foreach (var calendar in await calendarRows.ToListAsync())
 						{
-							if(!await this.dbContext.Calendar.AnyAsync(c => 
-								c.CityId == calendar.CityId
-								&& c.EscortId == calendar.EscortId
-								&& c.Date == calendar.Date))
+							if (!existingCalendar.Any(c =>
+								 c.CityId == calendar.CityId
+								 && c.Date == calendar.Date))
 							{
 								await this.dbContext.AddAsync(calendar);
 							}
@@ -635,5 +691,12 @@ namespace ListingApp.Crawling.Core.Parsers
 			Console.WriteLine("Cooldown: {0}", cooldown);
 			Thread.Sleep(cooldown);
 		}
-    }
+
+		private class PhoneData
+		{
+			public string Phone1 { get; set; }
+
+			public string Error { get; set; }
+		}
+	}
 }

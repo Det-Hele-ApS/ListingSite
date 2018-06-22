@@ -111,12 +111,29 @@ namespace ListingApp.BusinessComponents.Services
 
 		public async Task<IList<ListingEscortModel>> GetByAllFilters(string escortType, string serviceName, string city)
 		{
-			throw new NotImplementedException();
+			var today = DateTime.Now.Date;
+			return await this.db.Escorts
+				.Where(e =>
+					string.Compare(e.EscortType.Slug, escortType, StringComparison.OrdinalIgnoreCase) == 0
+					&& e.EscortServices.Any(es =>
+						string.Compare(es.Service.Slug, serviceName, StringComparison.OrdinalIgnoreCase) == 0)
+					&& e.Calendar.Any(c =>
+						string.Compare(c.City.Slug, city, StringComparison.OrdinalIgnoreCase) == 0
+						&& c.Date == today))
+				.Select(ModelSelector)
+				.ToListAsync();
 		}
 
 		public async Task<IList<ListingEscortModel>> GetByCity(string city)
 		{
-			throw new NotImplementedException();
+			var today = DateTime.Now.Date;
+			return await this.db.Calendar
+				.Where(c => 
+					string.Compare(c.City.Slug, city, StringComparison.OrdinalIgnoreCase) == 0
+					&& c.Date == today)
+				.Select(c => c.Escort)
+				.Select(ModelSelector)
+				.ToListAsync();
 		}
 
 		public async Task<IList<ListingEscortModel>> GetByEscortType(string escortType)
@@ -129,26 +146,46 @@ namespace ListingApp.BusinessComponents.Services
 
 		public async Task<IList<ListingEscortModel>> GetByEscortTypeAndCity(string escortType, string city)
 		{
-			throw new NotImplementedException();
+			var today = DateTime.Now.Date;
+			return await this.db.Calendar
+				.Where(c =>
+					string.Compare(c.City.Slug, city, StringComparison.OrdinalIgnoreCase) == 0
+					&& c.Date == today)
+				.Select(c => c.Escort)
+				.Where(e => string.Compare(e.EscortType.Slug, escortType, StringComparison.OrdinalIgnoreCase) == 0)
+				.Select(ModelSelector)
+				.ToListAsync();
 		}
 
 		public async Task<IList<ListingEscortModel>> GetByEscortTypeAndService(string escortType, string serviceName)
 		{
 			return await this.db.Escorts
-				.Where(e => e.EscortServices.Any(es => es.Service.Slug == serviceName || e.EscortType.Slug == escortType))
+				.Where(e => e.EscortServices.Any(es => 
+					string.Compare(es.Service.Slug, serviceName, StringComparison.OrdinalIgnoreCase) == 0 
+					&& e.EscortType.Slug == escortType))
 				.Select(ModelSelector)
 				.ToListAsync();
 		}
 
 		public async Task<IList<ListingEscortModel>> GetByServiceAndCity(string serviceName, string city)
 		{
-			throw new NotImplementedException();
+			var today = DateTime.Now.Date;
+			return await this.db.Escorts
+				.Where(e => 
+					e.EscortServices.Any(es =>
+						string.Compare(es.Service.Slug, serviceName, StringComparison.OrdinalIgnoreCase) == 0)
+					&& e.Calendar.Any(c => 
+						string.Compare(c.City.Slug, city, StringComparison.OrdinalIgnoreCase) == 0
+						&& c.Date == today))
+				.Select(ModelSelector)
+				.ToListAsync();
 		}
 
 		public async Task<IList<ListingEscortModel>> GetByServiceName(string serviceName)
 		{
 			return await this.db.Escorts
-				.Where(e => e.EscortServices.Any(es => es.Service.Slug == serviceName))
+				.Where(e => e.EscortServices.Any(es => 
+					string.Compare(es.Service.Slug, serviceName, StringComparison.OrdinalIgnoreCase) == 0))
 				.Select(ModelSelector)
 				.ToListAsync();
 		}
