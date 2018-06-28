@@ -48,7 +48,7 @@ namespace ListingApp.DataAccess
 			modelBuilder.Entity<Escort>().HasIndex(e => e.ExternalId).IsUnique(true);
 			modelBuilder.Entity<Image>().HasIndex(i => i.EscortId).IsUnique(false);
 
-			modelBuilder.Entity<Calendar>().HasIndex(c => new { c.Date, c.CityId, c.EscortId }).IsUnique(true);
+			// modelBuilder.Entity<Calendar>().HasIndex(c => new { c.Date, c.CityId, c.EscortId }).IsUnique(true);
 			// modelBuilder.Entity<Calendar>().HasIndex(c => c.CityId).IsUnique(false);
 			// modelBuilder.Entity<Calendar>().HasIndex(c => c.EscortId).IsUnique(false);
 		}
