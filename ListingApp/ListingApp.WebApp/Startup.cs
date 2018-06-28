@@ -96,7 +96,8 @@ namespace ListingApp.WebApp
 					defaults: new { controller = "Profile", action = "Index" });
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/");
+                    template: "{first?}/{second?}/{third?}",
+					defaults: new { controller = "Listing", action = "Index", first = "", second = "", third = "" });
             });
         }
     }

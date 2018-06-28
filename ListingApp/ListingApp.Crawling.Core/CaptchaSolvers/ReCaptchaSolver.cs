@@ -13,7 +13,7 @@ namespace ListingApp.Crawling.Core.CaptchaSolvers
 
 		private readonly int invalidAttemptsCount;
 
-		public ReCaptchaSolver(DeathByCaptchaConfig config)
+		public ReCaptchaSolver(AntiCaptchaConfig config)
 		{
 			this.client = new HttpClient(config.Username, config.Password);
 			this.invalidAttemptsCount = config.InvalidAttemptsCount;

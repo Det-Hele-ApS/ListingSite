@@ -2,7 +2,7 @@
 {
     public class Config
     {
-		public DeathByCaptchaConfig DeathByCaptchaConfig { get; set; }
+		public AntiCaptchaConfig DeathByCaptchaConfig { get; set; }
 
 		public string ConnectionString { get; set; }
 

@@ -13,12 +13,13 @@ namespace ListingApp.Crawling.Crawler
 				StorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=finneskorteprodstorage;AccountKey=7netpM+zWW6/6TnHL45p2uTHHm9+fQbVgIiTn7XaeJhUVieLZZ8a1PI0mrabaCJXBKhruXo+/0rw1S6MIL5ZCQ==;EndpointSuffix=core.windows.net",
 				RequestCooldown = 3500,
 				SkipCityParsing = true,
-				SkipExisting = true,
-				SkipPhoneCaptchaSolving = true,
-				DeathByCaptchaConfig = new DeathByCaptchaConfig
+				SkipExisting = false,
+				SkipPhoneCaptchaSolving = false,
+				DeathByCaptchaConfig = new AntiCaptchaConfig
 				{
 					InvalidAttemptsCount = 8,
-					Username = "jlejlbka",
+					//Username = "jlejlbka",
+					Username = "84132819c9fa8888e096b17f54dc06df",
 					Password = "Mikhalkou93"
 				},
 				Proxies = new[]

@@ -43,7 +43,9 @@ namespace ListingApp.Crawling.Core.Parsers
 
 		private readonly string storageConnectionString;
 
-		private readonly ReCaptchaSolver captchaSolver;
+		//private readonly ReCaptchaSolver captchaSolver;
+
+		private readonly TwoCaptchaSolver captchaSolver;
 
 		private readonly IAzureUploadService uploadService;
 
@@ -59,7 +61,8 @@ namespace ListingApp.Crawling.Core.Parsers
 
 		public RealEscortParser(Config.Config config)
 		{
-			this.captchaSolver = new ReCaptchaSolver(config.DeathByCaptchaConfig);
+			//this.captchaSolver = new ReCaptchaSolver(config.DeathByCaptchaConfig);
+			this.captchaSolver = new TwoCaptchaSolver(config.DeathByCaptchaConfig);
 			this.uploadService = new AzureUploadService();
 
 			var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
@@ -276,7 +279,7 @@ namespace ListingApp.Crawling.Core.Parsers
 			}
 
 			Console.WriteLine("Solving {0} - {1}", googleKey, url);
-			var captchaAnswer = this.captchaSolver.Solve(googleKey, url, this.proxyData);
+			var captchaAnswer = await this.captchaSolver.Solve(googleKey, url, this.proxyData);
 			postUrl += captchaAnswer;
 
 			Console.WriteLine("post url: {0}", postUrl);
@@ -333,8 +336,9 @@ namespace ListingApp.Crawling.Core.Parsers
 					var div = CQ.Create(phoneModal).Find("div.verify div").FirstElement();
 					var captchaKey = div.GetAttribute("recaptcha");
 
-					Console.WriteLine("Solving captcha: {0}", captchaKey);
-					var captchaAnswer = this.captchaSolver.Solve(captchaKey, $"{BaseUrl}/{phoneUrl}", this.proxyData);
+					var captchaUrl = $"{BaseUrl}/{phoneUrl}";
+					Console.WriteLine("Solving captcha: {0} - {1} - {2}", captchaKey, captchaUrl, url);
+					var captchaAnswer = await this.captchaSolver.Solve(captchaKey, url, this.proxyData);
 
 					var response = await this.SendRequest($"{BaseUrl}/{phoneUrl}/data", HttpMethod.Post, url, JsonConvert.SerializeObject(new
 					{
