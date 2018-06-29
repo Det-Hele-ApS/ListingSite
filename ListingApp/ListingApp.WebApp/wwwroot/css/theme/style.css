@@ -7725,3 +7725,13 @@ ul.dropdown-menu {
 div.region span:last-child {
 	display: none;
 }
+
+.listing-image {
+	margin: auto;
+	width: auto !important;
+	display: block;
+}
+
+.property-box {
+	height: 510px;
+}

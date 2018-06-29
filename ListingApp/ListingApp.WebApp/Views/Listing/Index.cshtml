@@ -5,6 +5,15 @@
 	ViewData["Title"] = "Eskorte";
 }
 
+<script type="text/javascript">
+	function adjustImage(id) {
+		var el = document.getElementById(id);
+		if (el.offsetHeight > 400) {
+			el.style.height = '400px';
+		}
+	}
+</script>
+
 <!-- Sub banner start -->
 <div class="sub-banner overview-bgi">
 	<div class="container">
@@ -87,7 +96,11 @@
 												<i class="fa fa-star-o"></i>
 											</div>
 										</div>
-										<img src="@escort.MainImage.SmallPath" alt="@escort.Name" class="img-fluid">
+										<img id="@(escort.Slug ?? escort.ExternalId.ToString())"
+											 src="@escort.MainImage.SmallPath"
+											 alt="@escort.Name"
+											 class="img-fluid listing-image"
+											 onload="adjustImage('@(escort.Slug ?? escort.ExternalId.ToString())');">
 									</a>
 									<div class="property-overlay">
 										<a asp-controller="Profile"
@@ -115,17 +128,6 @@
 											<i class="fa fa-map-marker"></i>@escort.EscortType
 										</a>
 									</div>
-									<ul class="facilities-list clearfix">
-
-									</ul>
-								</div>
-								<div class="footer">
-									@*<span>
-											<i class="fa fa-user"></i> ???
-										</span>
-										<span>
-											<i class="fa fa-calendar-o"></i> ???
-										</span>*@
 								</div>
 							</div>
 						</div>

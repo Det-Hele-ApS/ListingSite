@@ -89,7 +89,10 @@ namespace ListingApp.WebApp.Controllers
 			{
 				CurrentPage = page,
 				TotalPages = model.Count / PageSize + (model.Count % PageSize > 0 ? 1 : 0),
-				Escorts = model.Skip((page - 1) * PageSize).Take(PageSize).ToList()
+				Escorts = model.Where(e => !string.IsNullOrEmpty(e.MainImage.SmallPath))
+					.Skip((page - 1) * PageSize)
+					.Take(PageSize)
+					.ToList()
 			};
 
 			return this.View(pageModel);
