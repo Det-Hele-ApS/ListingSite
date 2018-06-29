@@ -37,12 +37,6 @@ namespace ListingApp.DataAccess.Migrations
                 table: "Cities",
                 column: "Slug",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Calendar_Date_CityId_EscortId",
-                table: "Calendar",
-                columns: new[] { "Date", "CityId", "EscortId" },
-                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -58,10 +52,6 @@ namespace ListingApp.DataAccess.Migrations
             migrationBuilder.DropIndex(
                 name: "IX_Cities_Slug",
                 table: "Cities");
-
-            migrationBuilder.DropIndex(
-                name: "IX_Calendar_Date_CityId_EscortId",
-                table: "Calendar");
 
             migrationBuilder.AlterColumn<string>(
                 name: "Slug",

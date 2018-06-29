@@ -39,9 +39,6 @@ namespace ListingApp.DataAccess.Migrations
 
                     b.HasIndex("EscortId");
 
-                    b.HasIndex("Date", "CityId", "EscortId")
-                        .IsUnique();
-
                     b.ToTable("Calendar");
                 });
 
