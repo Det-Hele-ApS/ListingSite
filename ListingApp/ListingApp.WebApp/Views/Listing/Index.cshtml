@@ -73,7 +73,7 @@
 						<div class="col-lg-6 col-md-6 col-sm-12">
 							<div class="property-box">
 								<div class="property-thumbnail">
-									<a asp-controller="Profile" asp-action="Index" asp-route-id="@(escort.Slug ?? escort.ExternalId)" class="property-img">
+									<a asp-controller="Profile" asp-action="Index" asp-route-id="@(escort.Slug ?? escort.ExternalId.ToString())" class="property-img">
 										<div class="tag button alt featured">Featured</div>
 										<div class="price-ratings-box">
 											<p class="price">
@@ -92,7 +92,7 @@
 									<div class="property-overlay">
 										<a asp-controller="Profile"
 										   asp-action="Index"
-										   asp-route-id="@(escort.Slug ?? escort.ExternalId)" class="overlay-link">
+										   asp-route-id="@(escort.Slug ?? escort.ExternalId.ToString())" class="overlay-link">
 											<i class="fa fa-link"></i>
 										</a>
 										<div class="property-magnify-gallery">
@@ -108,29 +108,14 @@
 									<h1 class="title">
 										<a asp-controller="Profile"
 										   asp-action="Index"
-										   asp-route-id="@(escort.Slug ?? escort.ExternalId)">@escort.Name</a>
+										   asp-route-id="@(escort.Slug ?? escort.ExternalId.ToString())">@escort.Name</a>
 									</h1>
 									<div class="location">
-										<a asp-controller="Profile" asp-action="Index" asp-route-id="@(escort.Slug ?? escort.ExternalId)">
+										<a asp-controller="Profile" asp-action="Index" asp-route-id="@(escort.Slug ?? escort.ExternalId.ToString())">
 											<i class="fa fa-map-marker"></i>@escort.EscortType
 										</a>
 									</div>
 									<ul class="facilities-list clearfix">
-										@{
-											var i = 0;
-										}
-										@foreach (var service in escort.Services)
-										{
-											<li>
-												<i class="flaticon-check-mark"></i> @Html.Raw(service.Name)
-											</li>
-
-											@if (++i == 4)
-											{
-												break;
-											}
-										}
-
 
 									</ul>
 								</div>

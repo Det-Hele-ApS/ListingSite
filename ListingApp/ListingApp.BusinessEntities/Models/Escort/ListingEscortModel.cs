@@ -4,7 +4,7 @@ namespace ListingApp.BusinessEntities.Models.Escort
 {
 	public class ListingEscortModel
     {
-		public string ExternalId { get; set; }
+		public int ExternalId { get; set; }
 
 		public string Name { get; set; }
 

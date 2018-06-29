@@ -19,21 +19,21 @@ namespace ListingApp.BusinessComponents.Services
 			e =>
 			 new ListingEscortModel
 			 {
-				 ExternalId = e.ExternalId.ToString(),
+				 ExternalId = e.ExternalId,
 				 EscortType = e.EscortType.ExternalName,
 				 Name = e.Name,
 				 Slug = e.Slug,
 				 MainImage = new ImageModel
 				 {
-					 Path = e.Images.FirstOrDefault(i => i.IsPrimary || i.SortOrder == e.Images.Min(im => im.SortOrder)).Path,
-					 SmallPath = e.Images.FirstOrDefault(i => i.IsPrimary || i.SortOrder == e.Images.Min(im => im.SortOrder)).SmallPath
-				 },
-				 Services = e.EscortServices.Select(s => new ListingServiceModel
-				 {
-					 Name = s.Service.Name,
-					 Slug = s.Service.Slug,
-					 Description = s.Service.Description
-				 })
+					 Path = e.Images.Where(i => i.IsPrimary || i.SortOrder == 0).FirstOrDefault().Path,
+					 SmallPath = e.Images.Where(i => i.IsPrimary || i.SortOrder == 0).FirstOrDefault().SmallPath
+				 }
+				 //Services = e.EscortServices.Select(s => new ListingServiceModel
+				 //{
+					// Name = s.Service.Name,
+					// Slug = s.Service.Slug,
+					// Description = s.Service.Description
+				 //})
 			 };
 
 		private static readonly Expression<Func<Escort, EscortModel>> ProfileSelector =
