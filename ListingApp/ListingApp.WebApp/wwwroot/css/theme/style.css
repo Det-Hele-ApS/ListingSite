@@ -7735,3 +7735,7 @@ div.region span:last-child {
 .property-box {
 	height: 510px;
 }
+
+.property-thumbnail {
+	height: 399px !important;
+}

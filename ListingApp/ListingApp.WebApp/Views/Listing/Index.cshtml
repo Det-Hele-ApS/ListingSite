@@ -10,6 +10,9 @@
 		var el = document.getElementById(id);
 		if (el.offsetHeight > 400) {
 			el.style.height = '400px';
+		} else if (el.offsetHeight < 400) {
+			var mt = (399 - el.offsetHeight) / 2;
+			el.style.marginTop = mt + 'px';
 		}
 	}
 </script>
