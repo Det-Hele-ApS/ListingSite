@@ -1,6 +1,7 @@
 ﻿@inject IEscortTypeService escortTypeService
 @inject IServiceService serviceService
 @inject ICityService cityService
+@inject IViewLocalizer Localizer
 
 @{
 	var escortTypes = await escortTypeService.GetAll();
@@ -69,21 +70,21 @@
 				<div class="col-12">
 					<nav class="navbar navbar-expand-lg navbar-light rounded">
 						<a href="/" class="navbar-brand logo">
-							<img src="~/images/logos/black-logo.png" alt="logo">
+							<span class="logo-text">FinnEskorte</span>
 						</a>
 						<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
 							<span class="fa fa-bars"></span>
 						</button>
 						<div class="collapse navbar-collapse" id="navbar">
 							<ul class="navbar-nav ml-auto">
-								<li class="nav-item">
-									<a class="nav-link" href="/eskorte">
-										Explore Escorts
-									</a>
-								</li>
+								@*<li class="nav-item">
+										<a class="nav-link" href="/eskorte">
+											Explore Escorts
+										</a>
+									</li>*@
 								<li class="nav-item dropdown">
 									<a class="nav-link dropdown-toggle" id="navbar-escort-types" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-										Escort Types
+										@Localizer["Escort Types"]
 									</a>
 									<ul class="dropdown-menu" aria-labelledby="navbar-escort-types">
 										@foreach (var escortType in escortTypes)
@@ -98,7 +99,7 @@
 								</li>
 								<li class="nav-item dropdown">
 									<a class="nav-link dropdown-toggle" id="navbar-services" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-										Services
+										@Localizer["Services"]
 									</a>
 									<ul class="dropdown-menu" aria-labelledby="navbar-services">
 										@foreach (var service in services)
@@ -113,7 +114,7 @@
 								</li>
 								<li class="nav-item dropdown">
 									<a class="nav-link dropdown-toggle" id="navbar-cities" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-										Cities
+										@Localizer["Cities"]
 									</a>
 									<ul class="dropdown-menu" aria-labelledby="navbar-cities">
 										@foreach (var city in cities)
@@ -127,11 +128,11 @@
 									</ul>
 								</li>
 							</ul>
-							<form class="form-inline my-2 my-lg-0">
-								<a href="#full-page-search" class=" my-2 my-sm-0">
-									<i class="fa fa-search"></i>
-								</a>
-							</form>
+							@*<form class="form-inline my-2 my-lg-0">
+									<a href="#full-page-search" class=" my-2 my-sm-0">
+										<i class="fa fa-search"></i>
+									</a>
+								</form>*@
 						</div>
 					</nav>
 				</div>
@@ -161,16 +162,16 @@
 			<div class="off-canvas-content">
 				<aside class="canvas-widget">
 					<div class="logo text-center">
-						<img src="~/images/logos/logo.png" alt="logo">
+						<span class="logo-text">FinnEskorte</span>
 					</div>
 				</aside>
 				<aside class="canvas-widget">
 					<ul class="menu">
-						<li class="menu-item"><a href="/">Home</a></li>
+						@*<li class="menu-item"><a href="/">Home</a></li>*@
 						<li class="menu-item"><a href="/eskorte">Explore Escorts</a></li>
 						<li class="menu-item menu-item-has-children">
 							<a href="javascript:void(0);">
-								Category
+								@Localizer["Categories"]
 							</a>
 							<ul class="menu">
 								@foreach (var category in escortTypes)
@@ -181,7 +182,7 @@
 						</li>
 						<li class="menu-item menu-item-has-children">
 							<a href="javascript:void(0);">
-								Service
+								@Localizer["Services"]
 							</a>
 							<ul class="menu">
 								@foreach (var service in services)
@@ -192,7 +193,7 @@
 						</li>
 						<li class="menu-item menu-item-has-children">
 							<a href="javascript:void(0);">
-								City
+								@Localizer["Cities"]
 							</a>
 							<ul class="menu">
 								@foreach (var city in cities)

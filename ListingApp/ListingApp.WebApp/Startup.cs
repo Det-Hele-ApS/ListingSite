@@ -5,6 +5,7 @@ using ListingApp.DataAccess;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using System.Globalization;
 using System.IO;
 
 namespace ListingApp.WebApp
@@ -42,9 +44,11 @@ namespace ListingApp.WebApp
             });
 
 			services.AddDbContext<AppDbContext>(options => options.UseSqlServer(this.connectionString));
-			services.AddMvc(); 
 			services.AddAutoMapper();
 			services.AddDirectoryBrowser();
+
+			services.AddLocalization(options => options.ResourcesPath = "Resources");
+			services.AddMvc().AddViewLocalization(/*options => options.ResourcesPath = "Resources"*/);
 
 			services.AddScoped<IEscortTypeService, EscortTypeService>();
 			services.AddScoped<IServiceService, ServiceService>();
@@ -68,7 +72,22 @@ namespace ListingApp.WebApp
                 app.UseExceptionHandler("/Home/Error");
             }
 
-            app.UseStaticFiles();
+			var supportedCultures = new[]
+			{
+				new CultureInfo("en-US"),
+				new CultureInfo("en-GB"),
+				new CultureInfo("en"),
+				new CultureInfo("nn")
+			};
+
+			app.UseRequestLocalization(new RequestLocalizationOptions
+			{
+				DefaultRequestCulture = new RequestCulture("nn"),
+				SupportedCultures = supportedCultures,
+				SupportedUICultures = supportedCultures
+			});
+
+			app.UseStaticFiles();
 			app.UseStaticFiles(new StaticFileOptions
 			{
 				FileProvider = new PhysicalFileProvider(

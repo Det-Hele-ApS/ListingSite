@@ -7715,10 +7715,14 @@ body.off-canvas-sidebar-open {
 	}
 }
 
+span.logo-text {
+	font-size: x-large;
+	font-weight: bold;
+}
 
 ul.dropdown-menu {
 	max-height: calc(100vh/2);
-	overflow-y: scroll;
+	overflow-y: auto;
 	overflow-x: hidden;
 }
 
