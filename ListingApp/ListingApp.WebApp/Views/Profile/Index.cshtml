@@ -1,4 +1,6 @@
 ﻿@model EscortModel
+@inject IViewLocalizer Localizer
+
 @{
 	Layout = "_ContentLayout";
 	ViewData["Title"] = "Eskorte Profile";
@@ -10,7 +12,7 @@
 		<div class="breadcrumb-area">
 			<h1>Profile Details</h1>
 			<ul class="breadcrumbs">
-				<li><a asp-controller="Listing" asp-action="Index">Eskorte</a></li>
+				<li><a asp-controller="Listing" asp-action="Index">@Localizer["Escorts"]</a></li>
 				<li class="active">@Model.Name</li>
 			</ul>
 		</div>
@@ -29,16 +31,6 @@
 							<div class="col-md-12">
 								<div class="pull-left">
 									<h3>@Model.Name</h3>
-								</div>
-								<div class="p-r">
-									<h3>$xxx</h3>
-									<p>
-										<i class="fa fa-star"></i>
-										<i class="fa fa-star"></i>
-										<i class="fa fa-star"></i>
-										<i class="fa fa-star"></i>
-										<i class="fa fa-star"></i>
-									</p>
 								</div>
 							</div>
 						</div>
@@ -92,24 +84,28 @@
 				<div class="tabbing tabbing-box mb-60">
 					<ul class="nav nav-tabs" id="carTab" role="tablist">
 						<li class="nav-item">
-							<a class="nav-link active show" id="one-tab" data-toggle="tab" href="#one" role="tab" aria-controls="one" aria-selected="false">Description</a>
+							<a class="nav-link active show" id="one-tab" data-toggle="tab" href="#one" role="tab" aria-controls="one" aria-selected="false">@Localizer["Description"]</a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link" id="three-tab" data-toggle="tab" href="#three" role="tab" aria-controls="three" aria-selected="true">Details</a>
+							<a class="nav-link" id="three-tab" data-toggle="tab" href="#three" role="tab" aria-controls="three" aria-selected="true">@Localizer["Details"]</a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link" id="four-tab" data-toggle="tab" href="#four" role="tab" aria-controls="four" aria-selected="true">Calendar</a>
+							<a class="nav-link" id="four-tab" data-toggle="tab" href="#four" role="tab" aria-controls="four" aria-selected="true">@Localizer["Calendar"]</a>
 						</li>
 					</ul>
 					<div class="tab-content" id="carTabContent">
 						<div class="tab-pane fade active show" id="one" role="tabpanel" aria-labelledby="one-tab">
-							<h3 class="heading">Description</h3>
+							<h3 class="heading">
+								@Localizer["Description"]
+							</h3>
 							@Html.Raw(Model.Description)
 						</div>
 
 						<div class="tab-pane fade " id="three" role="tabpanel" aria-labelledby="three-tab">
 							<div class="property-details">
-								<h3 class="heading">Details</h3>
+								<h3 class="heading">
+									@Localizer["Details"]
+								</h3>
 								<div class="row">
 									<div class="col-md-4 col-sm-6">
 										<ul>
@@ -170,7 +166,7 @@
 						</div>
 
 						<div class="tab-pane fade" id="four" role="tabpanel" aria-labelledby="four-tab">
-							<h3 class="heading">Calendar</h3>
+							<h3 class="heading">@Localizer["Calendar"]</h3>
 							<div class="row">
 								@foreach (var cal in Model.Calendar.GroupBy(c => c.Date.Date))
 								{
@@ -197,7 +193,7 @@
 
 				<!-- Features opions start -->
 				<div class="features-opions mb-60">
-					<h3 class="heading">Services</h3>
+					<h3 class="heading">@Localizer["Services"]</h3>
 					<div class="row">
 						<div class="col-md-4 col-sm-6">
 							<ul>

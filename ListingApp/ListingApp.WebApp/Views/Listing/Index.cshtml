@@ -124,7 +124,6 @@
 													<i class="fa fa-star-o"></i>
 												</div>
 											</div>*@
-										/**/
 										<img id="@(escort.Slug ?? escort.ExternalId.ToString())"
 											 src="@escort.MainImage.SmallPath"
 											 alt="@escort.Name"
@@ -152,13 +151,11 @@
 										   asp-action="Index"
 										   asp-route-id="@(escort.Slug ?? escort.ExternalId.ToString())">@escort.Name</a>
 									</h1>
-									/**/
 									@*<div class="location">
 											<a asp-controller="Profile" asp-action="Index" asp-route-id="@(escort.Slug ?? escort.ExternalId.ToString())">
 												<i class="fa fa-map-marker"></i>@escort.EscortType
 											</a>
 										</div>*@
-									/**/
 								</div>
 							</div>
 						</div>
