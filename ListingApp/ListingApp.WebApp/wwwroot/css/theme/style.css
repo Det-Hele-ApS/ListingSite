@@ -1279,7 +1279,7 @@ a {
 }
 /** SUB BANNER **/
 .sub-banner {
-	background: rgba(0, 0, 0, 0.04) url(http://placehold.it/1920x290) top left repeat;
+	background: rgba(0, 0, 0, 0.04) url(/images/list-header.png) top left repeat;
 	background-size: cover;
 	height: 290px;
 	background-position: center center;
