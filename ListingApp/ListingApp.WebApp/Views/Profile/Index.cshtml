@@ -98,7 +98,26 @@
 							<h3 class="heading">
 								@Localizer["Description"]
 							</h3>
-							@Html.Raw(Model.Description)
+							@*@Html.Raw(Model.Description)*@
+							Hi. I am @Html.Raw(Model.Name).
+							@if (Model.Features.ContainsKey("Alder"))
+							{
+								<span>I am @Model.Features["Alder"] years old.</span>
+							}
+
+							@if (Model.Features.ContainsKey("Høyde (cm)") && Model.Features.ContainsKey("Vekt (kg)"))
+							{
+								<span>I have a weight of @Model.Features["Vekt (kg)"] kg and am @Model.Features["Høyde(cm)"] cm tall.</span>
+							}
+							else if (Model.Features.ContainsKey("Høyde (cm)"))
+							{
+								<span>I am @Model.Features["Høyde(cm)"] cm tall.</span>
+							}
+							else if (Model.Features.ContainsKey("Vekt (kg)"))
+							{
+								<span>I have a weight of @Model.Features["Vekt (kg)"] kg.</span>
+							}
+
 						</div>
 
 						<div class="tab-pane fade " id="three" role="tabpanel" aria-labelledby="three-tab">
