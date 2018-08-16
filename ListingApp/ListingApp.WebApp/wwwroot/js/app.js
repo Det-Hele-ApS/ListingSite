@@ -2,11 +2,15 @@
 
 	"use strict";
 
-	// On window's load
 	$(window).on('load', function () {
-		setTimeout(function () {
-			$(".page_loader").fadeOut("fast");
-		}, 1000);
+		$(".page_loader").fadeOut("fast");
+	});
+
+	$(window).on('beforeunload', function () {
+		$(".page_loader").fadeIn('fast', function () {
+			window.scroll(0, 0);
+			$('body').css('overflow-y', 'hidden');
+		});
 	});
 
 	adjustHeader();
