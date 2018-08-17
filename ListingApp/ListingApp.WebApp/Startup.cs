@@ -48,7 +48,8 @@ namespace ListingApp.WebApp
 			services.AddDirectoryBrowser();
 
 			services.AddLocalization(options => options.ResourcesPath = "Resources");
-			services.AddMvc().AddViewLocalization(/*options => options.ResourcesPath = "Resources"*/);
+			services.AddMvc()
+				.AddViewLocalization();
 
 			services.AddScoped<IEscortTypeService, EscortTypeService>();
 			services.AddScoped<IServiceService, ServiceService>();
@@ -77,7 +78,8 @@ namespace ListingApp.WebApp
 				new CultureInfo("en-US"),
 				new CultureInfo("en-GB"),
 				new CultureInfo("en"),
-				new CultureInfo("nn")
+				new CultureInfo("nn"),
+				new CultureInfo("nb")
 			};
 
 			app.UseRequestLocalization(new RequestLocalizationOptions
