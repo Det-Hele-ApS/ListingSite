@@ -42,6 +42,19 @@
 					</div>
 				}
 
+				@if (string.IsNullOrEmpty(ViewBag.Type) && string.IsNullOrEmpty(ViewBag.Service) && !string.IsNullOrEmpty(ViewBag.City))
+				{
+					<div class="widget categories">
+						<h5 class="sidebar-title">@Localizer["Categories"]</h5>
+						<ul>
+							@foreach (var type in ViewBag.Types)
+							{
+								<li><a href="/eskorte/@type.Slug/@ViewBag.City">@type.Name</a></li>
+							}
+						</ul>
+					</div>
+				}
+
 				@if (!string.IsNullOrEmpty(ViewBag.Type) && !string.IsNullOrEmpty(ViewBag.Service) && string.IsNullOrEmpty(ViewBag.City))
 				{
 					<div class="widget categories">
