@@ -29,6 +29,19 @@ namespace ListingApp.BusinessComponents.Services
 				.ToListAsync();
 		}
 
+		public async Task<EscortTypeModel> GetBySlug(string slug)
+		{
+			var escortType = await this.dbContext.EscortTypes
+				.FirstOrDefaultAsync(es => string.Compare(es.Slug, slug, true) == 0);
+
+			if(escortType == null)
+			{
+				return null;
+			}
+
+			return this.mapper.Map<EscortType, EscortTypeModel>(escortType);
+		}
+
 		public async Task<bool> IsSlugExists(string slug)
 		{
 			return await this.dbContext.EscortTypes.AnyAsync(es => string.Compare(es.Slug, slug, true) == 0);

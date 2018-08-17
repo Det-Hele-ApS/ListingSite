@@ -7,5 +7,7 @@ namespace ListingApp.BusinessContracts.Services
 	public interface IEscortTypeService: ISlugService
     {
 		Task<IList<EscortTypeModel>> GetAll();
+
+		Task<EscortTypeModel> GetBySlug(string slug);
 	}
 }

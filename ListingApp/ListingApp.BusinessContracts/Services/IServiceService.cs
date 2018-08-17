@@ -7,5 +7,7 @@ namespace ListingApp.BusinessContracts.Services
 	public interface IServiceService: ISlugService
 	{
 		Task<IList<ServiceModel>> GetAll();
+
+		Task<ServiceModel> GetBySlug(string slug);
 	}
 }

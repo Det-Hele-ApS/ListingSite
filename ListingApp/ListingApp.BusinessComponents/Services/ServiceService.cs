@@ -34,5 +34,18 @@ namespace ListingApp.BusinessComponents.Services
 		{
 			return await this.dbContext.Services.AnyAsync(s => string.Compare(s.Slug, slug, true) == 0);
 		}
+
+		public async Task<ServiceModel> GetBySlug(string slug)
+		{
+			var service = await this.dbContext.Services
+				.FirstOrDefaultAsync(s => string.Compare(s.Slug, slug, true) == 0);
+
+			if (service == null)
+			{
+				return null;
+			}
+
+			return this.mapper.Map<Service, ServiceModel>(service);
+		}
 	}
 }

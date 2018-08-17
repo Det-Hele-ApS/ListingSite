@@ -42,5 +42,18 @@ namespace ListingApp.BusinessComponents.Services
 		{
 			return await this.dbContext.Cities.AnyAsync(c => string.Compare(c.Slug, slug, true) == 0);
 		}
+
+		public async Task<CityModel> GetBySlug(string slug)
+		{
+			var city = await this.dbContext.Cities
+				.FirstOrDefaultAsync(c => string.Compare(c.Slug, slug, true) == 0);
+
+			if (city == null)
+			{
+				return null;
+			}
+
+			return this.mapper.Map<City, CityModel>(city);
+		}
 	}
 }

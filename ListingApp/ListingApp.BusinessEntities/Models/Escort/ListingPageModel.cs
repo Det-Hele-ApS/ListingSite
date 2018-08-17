@@ -8,6 +8,8 @@ namespace ListingApp.BusinessEntities.Models.Escort
 
 		public int TotalPages { get; set; }
 
+		public string CeoText { get; set; }
+
 		public IList<ListingEscortModel> Escorts { get; set; }
     }
 }
